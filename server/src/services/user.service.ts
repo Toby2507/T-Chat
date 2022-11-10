@@ -1,0 +1,21 @@
+import UserModel, { User } from "../models/user.model";
+
+export const createUser = (input: Partial<User>) => {
+    return UserModel.create(input)
+}
+
+export const findUserByUsername = (userName: string) => {
+    return UserModel.findOne({ userName })
+}
+
+export const findUserByEmail = (email: string) => {
+    return UserModel.findOne({ email })
+}
+
+export const findUserById = (id: string) => {
+    return UserModel.findById(id)
+}
+
+export const findUserByRefeshToken = (refreshToken: string) => {
+    return UserModel.findOne({ refreshToken })
+}
