@@ -1,15 +1,14 @@
 import { Router } from "express";
-import { createUserHandler, currentUserHandler, forgotPasswordHandler, resetPasswordHandler, verifyUserHandler } from "../controllers/user.controller";
-import requireUser from "../middlewares/requireUser";
+import { forgotPasswordHandler, resetPasswordHandler, setProfilePictureHandler, verifyUserHandler } from "../controllers/user.controller";
 import validateSchema from "../middlewares/validateSchema";
-import { createUserSchema, forgotPasswordSchema, resetPasswordSchema, verifyUserSchema } from "../schemas/user.schema";
+import { forgotPasswordSchema, resetPasswordSchema, verifyUserSchema } from "../schemas/user.schema";
+import { parser } from "../utils/imageParser";
 
 const router = Router();
 
-router.post('/signup', validateSchema(createUserSchema), createUserHandler)
-router.get('/verify/:id/:verificationCode', validateSchema(verifyUserSchema), verifyUserHandler)
-router.post('/forgotpassword', validateSchema(forgotPasswordSchema), forgotPasswordHandler)
-router.post('/resetpassword/:id/:passwordResetCode', validateSchema(resetPasswordSchema), resetPasswordHandler)
-router.get('/currentuser', requireUser, currentUserHandler)
+router.get('/verify/:id/:verificationCode', validateSchema(verifyUserSchema), verifyUserHandler);
+router.post('/forgotpassword', validateSchema(forgotPasswordSchema), forgotPasswordHandler);
+router.post('/resetpassword/:id/:passwordResetCode', validateSchema(resetPasswordSchema), resetPasswordHandler);
+router.post('/setprofilepicture', parser.single('image'), setProfilePictureHandler);
 
-export default router
+export default router;

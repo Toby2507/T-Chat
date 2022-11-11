@@ -1,5 +1,6 @@
-import { BiDotsVerticalRounded } from 'react-icons/bi'
-import { BsSearch } from 'react-icons/bs'
+import { BiDotsVerticalRounded } from 'react-icons/bi';
+import { BsSearch } from 'react-icons/bs';
+import LogoutButton from '../auth/LogoutButton';
 
 const Lounge = () => {
     return (
@@ -41,8 +42,9 @@ const Lounge = () => {
                     </div>
                 </article>
             </div>
+            <LogoutButton />
         </section>
-    )
-}
+    );
+};
 
-export default Lounge
+export default Lounge;

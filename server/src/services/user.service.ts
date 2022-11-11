@@ -1,21 +1,25 @@
 import UserModel, { User } from "../models/user.model";
 
 export const createUser = (input: Partial<User>) => {
-    return UserModel.create(input)
-}
+    return UserModel.create(input);
+};
 
 export const findUserByUsername = (userName: string) => {
-    return UserModel.findOne({ userName })
-}
+    return UserModel.findOne({ userName });
+};
 
 export const findUserByEmail = (email: string) => {
-    return UserModel.findOne({ email })
-}
+    return UserModel.findOne({ email });
+};
 
 export const findUserById = (id: string) => {
-    return UserModel.findById(id)
-}
+    return UserModel.findById(id);
+};
 
 export const findUserByRefeshToken = (refreshToken: string) => {
-    return UserModel.findOne({ refreshToken })
-}
+    return UserModel.findOne({ refreshToken });
+};
+
+export const setProfilePicture = (id: string, profilePicture: string) => {
+    return UserModel.findByIdAndUpdate(id, { profilePicture }, { new: true });
+};

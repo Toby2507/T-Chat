@@ -7,11 +7,11 @@ import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
 import log from "../utils/logger";
 
-export const privateFields = ["password", "__v", "verificationCode", "passwordResetCode", "verified"]
+export const privateFields = ["password", "__v", "verificationCode", "passwordResetCode", "createdAt", "updatedAt"];
 
 @pre<User>("save", async function () {
     if (!this.isModified('password')) return;
-    this.password = await bcrypt.hash(this.password, 10)
+    this.password = await bcrypt.hash(this.password, 10);
     return;
 })
 @index({ email: 1 })
@@ -21,39 +21,36 @@ export const privateFields = ["password", "__v", "verificationCode", "passwordRe
 })
 export class User {
     @prop({ lowercase: true, required: true, unique: true })
-    email: string
-
-    @prop({ required: true })
-    firstName: string
-
-    @prop({ required: true })
-    lastName: string
+    email: string;
 
     @prop({ required: true, unique: true })
-    userName: string
+    userName: string;
 
     @prop({ required: true })
-    password: string
+    password: string;
 
     @prop({ default: () => nanoid() })
-    verificationCode: string
+    verificationCode: string;
 
     @prop({ default: false })
-    verified: boolean
+    verified: boolean;
 
     @prop()
-    passwordResetCode: string | null
+    passwordResetCode: string | null;
+
+    @prop({ default: null })
+    profilePicture: string | null;
 
     async validatePassword(this: DocumentType<User>, password: string) {
         try {
-            return await bcrypt.compare(password, this.password)
+            return await bcrypt.compare(password, this.password);
         } catch (err) {
-            log.error(err, 'Could not validate password')
-            return false
+            log.error(err, 'Could not validate password');
+            return false;
         }
     }
 }
 
 const UserModel = getModelForClass(User);
 
-export default UserModel
+export default UserModel;
