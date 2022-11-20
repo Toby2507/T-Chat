@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { ImSpinner9 } from "react-icons/im";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import Loader from '../../components/Loader';
 import { useSignupMutation } from './authSlice';
 // Components
-import SignupInfo from './SignupInfo';
-import SignupPwd from './SignupPwd';
-import { selectUser, setCredentials } from './userSlice';
+import SignupInfo from '../../components/SignupInfo';
+import SignupPwd from '../../components/SignupPwd';
+import { selectUser, setCredentials } from '../api/globalSlice';
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const EMAIL_REGEX = /^[\w.+-]{3,}@[\w-]+\.[\w-]+$/;
@@ -14,7 +14,7 @@ const EMAIL_REGEX = /^[\w.+-]{3,}@[\w-]+\.[\w-]+$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,24}$/;
 // OPTIONAL CLASSES
 const offscreen = 'absolute -left-[9999px]';
-const onscreen = 'w-full bg-red-200 text-red-500 text-center rounded-md font-bold px-2 py-1 mb-2';
+const onscreen = 'w-full bg-red-200 text-red-500 text-center rounded-md font-bold px-4 py-1 mb-2';
 
 const Signup = () => {
     const dispatch = useAppDispatch();
@@ -50,12 +50,10 @@ const Signup = () => {
         e.preventDefault();
         try {
             const res = await signup({ userName, email, password }).unwrap();
-            console.log(res);
             dispatch(setCredentials(res));
             reset('info');
-            navigate('/setprofilepicture', { replace: true });
+            navigate('/verify', { replace: true });
         } catch (err: any) {
-            console.log(err);
             if (!err?.status) {
                 setErrMsg('No Server Response');
             } else if (err.status === 400) {
@@ -80,30 +78,35 @@ const Signup = () => {
         setMatchPwdValid(password === matchPwd);
     }, [password, matchPwd]);
     useEffect(() => { setErrMsg(''); }, [userName, password, matchPwd]);
-    useEffect(() => { currentUser.user && currentUser.accessToken && navigate('/lounge', { replace: true }); }, []);
+    useEffect(() => { currentUser && navigate('/lounge', { replace: true }); }, [currentUser, navigate]);
     return (
         <>
-            <p ref={errRef} className={errMsg ? onscreen : offscreen} aria-live='assertive'>{errMsg}</p>
-            <h1 className='text-white text-xl text-center font-semibold capitalize mb-4'>sign up</h1>
-            <form className='w-full flex flex-col space-y-8 items-center  md:w-10/12' onSubmit={handleSubmit}>
-                {infoTaken ? <SignupPwd {...pwds} /> : <SignupInfo {...infos} />}
-                {infoTaken ? (
-                    <button
-                        type="submit"
-                        disabled={!passwordValid && !matchPwdValid}
-                        className='bg-mainBlue py-3 w-48 grid place-items-center rounded-3xl text-sm text-white capitalize md:text-lg'
-                        aria-label='sign up'
-                    >{isLoading ? <ImSpinner9 className='animate-spin' /> : 'sign up'}</button>
-                ) : (
-                    <button
-                        type="button"
-                        disabled={!userNameValid && !emailValid}
-                        className='bg-mainBlue py-3 w-48 rounded-3xl text-sm text-white capitalize md:text-lg'
-                        onClick={() => setInfoTaken(true)}
-                    >next</button>
-                )}
-            </form>
-            <p className="text-xs text-white pt-6">Already have an account? <span className="text-accentPurple uppercase"><Link to='/login'>log in</Link></span></p>
+            <div className="w-full flex flex-col items-center space-y-2">
+                <p ref={errRef} className={errMsg ? onscreen : offscreen} aria-live='assertive'>{errMsg}</p>
+                <h1 className='text-white text-xl text-center font-semibold capitalize mb-4'>sign up</h1>
+            </div>
+            <div className="w-full flex flex-col items-center space-y-4">
+                <form className='w-full flex flex-col space-y-8 items-center  md:w-10/12' onSubmit={handleSubmit}>
+                    {infoTaken ? <SignupPwd {...pwds} /> : <SignupInfo {...infos} />}
+                    {infoTaken ? (
+                        <button
+                            type="submit"
+                            disabled={!passwordValid && !matchPwdValid}
+                            className='bg-mainBlue py-3 w-48 grid place-items-center rounded-3xl text-sm text-white capitalize md:text-lg'
+                            aria-label='sign up'
+                        >sign up</button>
+                    ) : (
+                        <button
+                            type="button"
+                            disabled={!userNameValid && !emailValid}
+                            className='bg-mainBlue py-3 w-48 rounded-3xl text-sm text-white capitalize md:text-lg'
+                            onClick={() => setInfoTaken(true)}
+                        >next</button>
+                    )}
+                </form>
+                <p className="text-xs text-white pt-6">Already have an account? <span className="text-accentPurple uppercase"><Link to='/login'>log in</Link></span></p>
+                {isLoading && <Loader />}
+            </div>
         </>
     );
 };

@@ -1,6 +1,6 @@
-import { configureStore, ThunkAction, Action, getDefaultMiddleware } from '@reduxjs/toolkit';
+import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
 import { apiSlice } from '../features/api/apiSlice';
-import userReducer from '../features/auth/userSlice'
+import userReducer from '../features/api/globalSlice';
 
 export const store = configureStore({
   reducer: {

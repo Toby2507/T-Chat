@@ -1,8 +1,11 @@
 import { BiDotsVerticalRounded } from 'react-icons/bi';
 import { BsSearch } from 'react-icons/bs';
+import Loader from '../../components/Loader';
 import LogoutButton from '../auth/LogoutButton';
+import { useGetAllUsersQuery } from './chatSlice';
 
 const Lounge = () => {
+    const { data: users, isLoading, error } = useGetAllUsersQuery({});
     return (
         <section className="container mx-auto px-4 py-6 flex flex-col items-center space-y-4">
             <div className="w-full flex items-center justify-between">
@@ -43,6 +46,7 @@ const Lounge = () => {
                 </article>
             </div>
             <LogoutButton />
+            {isLoading && <Loader />}
         </section>
     );
 };

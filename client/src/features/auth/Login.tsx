@@ -3,12 +3,12 @@ import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineUser } from 'react-icons/
 import { RiLockPasswordLine } from 'react-icons/ri';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import Loader from '../../components/Loader';
+import { selectUser, setCredentials } from '../api/globalSlice';
 import { useLoginMutation } from './authSlice';
-import { ImSpinner9 } from "react-icons/im";
-import { selectUser, setCredentials } from './userSlice';
 
 const offscreen = 'absolute -left-[9999px]';
-const onscreen = 'bg-errorRed text-errorRedText text-center rounded-md font-bold p-2 mb-2';
+const onscreen = 'w-full bg-red-200 text-red-500 text-center rounded-md font-bold px-4 py-1 mb-2';
 
 const Login = () => {
     const dispatch = useAppDispatch();
@@ -23,15 +23,14 @@ const Login = () => {
     const [login, { isLoading }] = useLoginMutation();
     const [userName, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [rememberMe, setRememberMe] = useState<string>(JSON.parse(localStorage.getItem('rememberMe') || 'false'));
-    const [isPwdVisible, setIsPwdVisible] = useState<boolean>(false);
+    const [persist, setPersist] = useState<string>(JSON.parse(localStorage.getItem('persist') as string) || 'false');
+    const [isPwdVisible, setIsPwdVisible] = useState<boolean>();
     const [errMsg, setErrMsg] = useState<string>('');
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
             const res = await login({ userName, password }).unwrap();
-            console.log(res);
             dispatch(setCredentials({ ...res }));
             setUsername(''); setPassword('');
             navigate(from, { replace: true });
@@ -52,55 +51,60 @@ const Login = () => {
 
     useEffect(() => { userRef.current?.focus(); }, []);
     useEffect(() => { setErrMsg(''); }, [userName, password]);
-    useEffect(() => { localStorage.setItem('rememberMe', JSON.stringify(rememberMe)); }, [rememberMe]);
-    useEffect(() => { currentUser.user && currentUser.accessToken && navigate(from, { replace: true }); }, []);
+    useEffect(() => { localStorage.setItem('persist', JSON.stringify(persist)); }, [persist]);
+    useEffect(() => { currentUser && navigate(from, { replace: true }); }, [currentUser, navigate, from]);
     return (
         <>
-            <p ref={errRef} className={errMsg ? onscreen : offscreen} aria-live='assertive'>{errMsg}</p>
-            <h1 className='text-white text-xl text-center font-semibold capitalize mb-4'>log in</h1>
-            <form onSubmit={handleSubmit} className='w-full flex flex-col space-y-4 items-center md:w-10/12 md:space-y-6'>
-                <div className="w-full flex flex-col space-y-2 items-start">
-                    <label htmlFor="username" className='flex items-center gap-2 text-sm text-white font-medium capitalize'>username: </label>
-                    <div className="relative w-full h-10">
-                        <input
-                            type="text"
-                            id="username"
-                            ref={userRef}
-                            autoComplete='off'
-                            value={userName}
-                            onChange={e => setUsername(e.target.value)}
-                            className='absolute w-full h-full rounded-3xl bg-white pl-10 focus:outline-none'
-                            required
-                        />
-                        <span className='absolute top-[0.6rem] left-4 text-xl'><AiOutlineUser /></span>
+            <div className="w-full flex flex-col items-center space-y-2">
+                <p ref={errRef} className={errMsg ? onscreen : offscreen} aria-live='assertive'>{errMsg}</p>
+                <h1 className='text-white text-xl text-center font-semibold capitalize mb-4'>log in</h1>
+            </div>
+            <div className="w-full flex flex-col items-center space-y-4">
+                <form onSubmit={handleSubmit} className='w-full flex flex-col space-y-4 items-center md:w-10/12 md:space-y-6'>
+                    <div className="w-full flex flex-col space-y-2 items-start">
+                        <label htmlFor="username" className='text-sm text-white font-medium capitalize'>username: </label>
+                        <div className="relative w-full h-10">
+                            <input
+                                type="text"
+                                id="username"
+                                ref={userRef}
+                                autoComplete='off'
+                                value={userName}
+                                onChange={e => setUsername(e.target.value)}
+                                className='absolute w-full h-full rounded-3xl bg-white pl-10 focus:outline-none'
+                                required
+                            />
+                            <span className='absolute top-[0.6rem] left-4 text-xl'><AiOutlineUser /></span>
+                        </div>
                     </div>
-                </div>
-                <div className="w-full flex flex-col space-y-2 items-start">
-                    <label htmlFor="password" className='flex items-center gap-2 text-sm text-white font-medium capitalize'>password: </label>
-                    <div className="relative w-full h-10">
-                        <input
-                            type="password"
-                            id={isPwdVisible ? "text" : "password"}
-                            ref={pwdRef}
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            className='absolute w-full h-full rounded-3xl bg-white pl-10 focus:outline-none'
-                            required
-                        />
-                        <span className='absolute top-[0.6rem] left-4 text-xl'><RiLockPasswordLine /></span>
-                        <button type='button' className="absolute top-[0.6rem] right-4 text-xl text-accentGray" onClick={() => setIsPwdVisible(!isPwdVisible)}>{isPwdVisible ? <AiOutlineEye /> : <AiOutlineEyeInvisible />}</button>
+                    <div className="w-full flex flex-col space-y-2 items-start">
+                        <label htmlFor="password" className='text-sm text-white font-medium capitalize'>password: </label>
+                        <div className="relative w-full h-10">
+                            <input
+                                type="password"
+                                id={isPwdVisible ? "text" : "password"}
+                                ref={pwdRef}
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                className='absolute w-full h-full rounded-3xl bg-white pl-10 focus:outline-none'
+                                required
+                            />
+                            <span className='absolute top-[0.6rem] left-4 text-xl'><RiLockPasswordLine /></span>
+                            <button type='button' className="absolute top-[0.6rem] right-4 text-xl text-accentGray" onClick={() => setIsPwdVisible(!isPwdVisible)}>{isPwdVisible ? <AiOutlineEye /> : <AiOutlineEyeInvisible />}</button>
+                        </div>
                     </div>
-                </div>
-                <div className="w-full flex justify-between items-center">
-                    <div className="self-start flex items-center gap-2">
-                        <input type="checkbox" id="rememberMe" checked={rememberMe === 'false' ? false : true} onChange={(e) => setRememberMe(e.target.checked ? 'true' : 'false')} />
-                        <label htmlFor="rememberMe" className='text-secondaryGray text-xs capitalize'>remember me</label>
+                    <div className="w-full flex justify-between items-center">
+                        <div className="self-start flex items-center gap-2">
+                            <input type="checkbox" id="persist" checked={persist === 'true'} onChange={(e) => setPersist(persist === 'true' ? 'false' : 'true')} />
+                            <label htmlFor="persist" className='text-secondaryGray text-xs capitalize'>remember me</label>
+                        </div>
+                        <Link to='/forgotpassword' className='text-secondaryGray text-xs capitalize'>forgot password?</Link>
                     </div>
-                    <Link to='/forgot-password' className='text-secondaryGray text-xs capitalize'>forgot password?</Link>
-                </div>
-                <button type="submit" className='bg-mainBlue py-3 w-48 grid place-items-center rounded-3xl text-sm text-white capitalize md:text-lg'>{isLoading ? <ImSpinner9 className='animate-spin' /> : 'log in'}</button>
-            </form>
-            <p className="text-xs text-white pt-6">Need an account? <span className="text-accentPurple uppercase pl-1"><Link to='/signup'>sign up</Link></span></p>
+                    <button type="submit" className='bg-mainBlue py-3 w-48 grid place-items-center rounded-3xl text-sm text-white capitalize md:text-lg'>log in</button>
+                </form>
+                <p className="text-xs text-white pt-6">Need an account? <span className="text-accentPurple uppercase pl-1"><Link to='/signup'>sign up</Link></span></p>
+                {isLoading && <Loader />}
+            </div>
         </>
     );
 };

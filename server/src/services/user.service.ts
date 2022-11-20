@@ -1,7 +1,7 @@
 import UserModel, { User } from "../models/user.model";
 
 export const createUser = (input: Partial<User>) => {
-    return UserModel.create(input);
+    return UserModel.create({ ...input });
 };
 
 export const findUserByUsername = (userName: string) => {
@@ -22,4 +22,8 @@ export const findUserByRefeshToken = (refreshToken: string) => {
 
 export const setProfilePicture = (id: string, profilePicture: string) => {
     return UserModel.findByIdAndUpdate(id, { profilePicture }, { new: true });
+};
+
+export const getAllUsers = (currentUserId: string) => {
+    return UserModel.find({ _id: { $ne: currentUserId } }).sort('userName');
 };

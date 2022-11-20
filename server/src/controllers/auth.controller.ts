@@ -12,10 +12,9 @@ export const createUserHandler = async (req: Request<{}, {}, createUserInput>, r
     try {
         const user = await createUser(body);
         await sendEmail({
-            from: "test@example.com",
             to: user.email,
-            subject: "Please verify your email",
-            text: `Verification code: ${user.verificationCode}, ID: ${user._id}`,
+            template: "verifyUser",
+            locals: { name: user.userName, verifyCode: user.verificationCode }
         });
         const accessToken = signAccessToken(user);
         const refreshToken = await signRefreshToken(user._id);
@@ -50,7 +49,7 @@ export const refreshAccessHandler = async (req: Request, res: Response) => {
     const user = await findUserById(String(session.user));
     if (!user) return res.sendStatus(403);
     const accessToken = signAccessToken(user);
-    res.json({ accessToken });
+    res.json({ user: omit(user.toJSON(), privateFields), accessToken });
 };
 
 export const logoutUserHandler = async (req: Request, res: Response) => {

@@ -4,8 +4,8 @@ import { Severity } from "@typegoose/typegoose/lib/internal/constants";
 import { modelOptions } from "@typegoose/typegoose/lib/modelOptions";
 import { DocumentType } from "@typegoose/typegoose/lib/types";
 import bcrypt from "bcrypt";
-import { nanoid } from "nanoid";
 import log from "../utils/logger";
+import verifyCode from "../utils/manualVerifyCode";
 
 export const privateFields = ["password", "__v", "verificationCode", "passwordResetCode", "createdAt", "updatedAt"];
 
@@ -29,8 +29,8 @@ export class User {
     @prop({ required: true })
     password: string;
 
-    @prop({ default: () => nanoid() })
-    verificationCode: string;
+    @prop({ default: () => verifyCode() })
+    verificationCode: number;
 
     @prop({ default: false })
     verified: boolean;

@@ -1,14 +1,14 @@
-import { Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom";
 
 const AuthMain = () => {
     return (
         <section className="h-screen grid place-items-center grid-rows-2 overflow-hidden md:grid-rows-none md:grid-cols-2">
             <div className="w-full h-full bg-authMobile bg-no-repeat bg-cover bg-center"></div>
-            <div className="w-full min-h-full -mt-10 rounded-3xl bg-black flex flex-col items-center justify-center p-8">
+            <section className="w-full min-h-full -mt-10 rounded-3xl bg-black flex flex-col justify-center space-y-6 items-center px-4 py-8">
                 <Outlet />
-            </div>
+            </section>
         </section>
-    )
-}
+    );
+};
 
-export default AuthMain
+export default AuthMain;

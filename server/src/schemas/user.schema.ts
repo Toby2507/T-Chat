@@ -2,7 +2,6 @@ import { object, string, TypeOf } from "zod";
 
 export const verifyUserSchema = object({
     params: object({
-        id: string(),
         verificationCode: string()
     })
 });
@@ -23,6 +22,13 @@ export const resetPasswordSchema = object({
     })
 });
 
+export const resendPasswordResetEmailSchema = object({
+    body: object({
+        email: string()
+    })
+});
+
 export type verifyUserInput = TypeOf<typeof verifyUserSchema>["params"];
 export type forgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 export type resetPasswordInput = TypeOf<typeof resetPasswordSchema>;
+export type resendPasswordResetEmailInput = TypeOf<typeof resendPasswordResetEmailSchema>["body"];

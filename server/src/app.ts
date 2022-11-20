@@ -9,11 +9,11 @@ import morgan from "morgan";
 import { corsOptions } from "../config/corsOptions";
 import { corsCredentials } from "./middlewares/corsCredentials";
 import deserializeUser from "./middlewares/deserializeUser";
-import userRoutes from "./routes/user.route";
+import errorHandlerMiddleware from "./middlewares/errorHandler";
 import authRoutes from "./routes/auth.route";
+import userRoutes from "./routes/user.route";
 import connectDB from "./utils/connectDB";
 import log from "./utils/logger";
-import requireUser from "./middlewares/requireUser";
 
 const port = process.env.PORT;
 
@@ -33,9 +33,9 @@ app.use(deserializeUser);
 
 // Router
 app.use('/api/v1/auth', authRoutes);
-
-app.use(requireUser);
 app.use('/api/v1/user', userRoutes);
+
+app.use(errorHandlerMiddleware);
 
 mongoose.connection.once('open', () => {
     log.info('Server Connected to DB');

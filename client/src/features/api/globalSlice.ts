@@ -2,9 +2,18 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 
 export interface stateInterface {
-  user: object | null,
+  user: userInterface | null;
   accessToken: string | null;
 }
+
+export interface userInterface {
+  profilePicture: string | null;
+  _id: string;
+  email: string;
+  userName: string;
+  verified: boolean;
+}
+
 
 const initialState: stateInterface = { user: null, accessToken: null };
 
@@ -18,12 +27,11 @@ const userSlice = createSlice({
       if (accessToken) state.accessToken = accessToken;
     },
     clearCredentials: (state) => {
-      state.user = null;
-      state.accessToken = null;
+      state = initialState;
     }
   }
 });
 
 export const { setCredentials, clearCredentials } = userSlice.actions;
-export const selectUser = (state: RootState) => state.user;
+export const selectUser = (state: RootState) => state.user.user;
 export default userSlice.reducer;

@@ -1,25 +1,38 @@
-import config from 'config';
+import Email from 'email-templates';
 import nodemailer, { SendMailOptions } from 'nodemailer';
 import log from './logger';
 
-interface smtpInterface {
-    user: string;
-    pass: string;
-    host: string;
-    port: number;
-    secure: boolean;
+interface emailPayloadInterface {
+    template: string;
+    to: string;
+    locals: object;
 }
-const smtp = config.get<smtpInterface>('smtp');
-const transport = nodemailer.createTransport({
-    ...smtp,
-    auth: { user: smtp.user, pass: smtp.pass }
-})
 
-const sendEmail = async (payload: SendMailOptions) => {
-    transport.sendMail(payload, (err, info) => {
-        if (err) return log.error(err, "Error sending email");
-        log.info(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
-    })
-}
+const transport = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_PASS }
+});
+
+const email = new Email({
+    views: { root: 'src/emails/', options: { extension: 'ejs' } },
+    message: {
+        from: process.env.GMAIL_USER
+    },
+    preview: false,
+    send: true,
+    transport
+});
+
+const sendEmail = async (payload: emailPayloadInterface) => {
+    try {
+        email.send({
+            template: payload.template,
+            message: {
+                to: payload.to
+            },
+            locals: { ...payload.locals }
+        });
+    } catch (err) { log.error(err, "Error sending email"); }
+};
 
 export default sendEmail;
