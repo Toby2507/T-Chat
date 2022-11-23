@@ -15,7 +15,7 @@ const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const currentUser = useAppSelector(selectUser);
-    const from = location.state?.from?.pathname || '/lounge';
+    const from = location.state?.from?.pathname || '/chat';
     const userRef = useRef<HTMLInputElement>(null);
     const errRef = useRef<HTMLParagraphElement>(null);
     const pwdRef = useRef<HTMLInputElement>(null);

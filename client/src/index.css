@@ -2,3 +2,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+::-webkit-scrollbar {
+  width: 0.1rem;
+}
+
+::-webkit-scrollbar-thumb {
+  width: 0.1rem;
+  background-color: #828BD4;
+  border-radius: 0.5rem;
+}
+
+.emoji .EmojiPickerReact {
+  position: absolute !important;
+  border: none !important;
+  bottom: 140%;
+  max-width: 95vw;
+}
+
+.EmojiPickerReact {
+  --epr-bg-color: #212224;
+  --epr-hover-bg-color: #383E3C;
+  --epr-category-label-bg-color: #212224;
+  --epr-highlight-color: transparent;
+  --epr-search-input-bg-color-active: #383E3C;
+  --epr-search-input-bg-color: #383E3C;
+  --epr-focus-bg-color: #383E3C;
+  --epr-category-icon-active-color: #828BD4;
+}

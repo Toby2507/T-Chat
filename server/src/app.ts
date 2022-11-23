@@ -12,6 +12,7 @@ import deserializeUser from "./middlewares/deserializeUser";
 import errorHandlerMiddleware from "./middlewares/errorHandler";
 import authRoutes from "./routes/auth.route";
 import userRoutes from "./routes/user.route";
+import messageRoutes from "./routes/message.route";
 import connectDB from "./utils/connectDB";
 import log from "./utils/logger";
 
@@ -34,6 +35,7 @@ app.use(deserializeUser);
 // Router
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/message', messageRoutes);
 
 app.use(errorHandlerMiddleware);
 

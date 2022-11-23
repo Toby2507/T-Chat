@@ -1,18 +1,21 @@
-import { createEntityAdapter } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSelector, EntityState } from '@reduxjs/toolkit';
+import { RootState } from '../../app/store';
 import { apiSlice } from '../api/apiSlice';
-import { setCredentials, clearCredentials, userInterface } from '../api/globalSlice';
+import { clearCredentials, setCredentials, userInterface } from '../api/globalSlice';
 
-const usersAdapter = createEntityAdapter({
-  selectId: (user: userInterface) => user._id
+const usersAdapter = createEntityAdapter<userInterface>({
+  selectId: user => user._id
 });
 const initialState = usersAdapter.getInitialState();
 
 export const authSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getUsers: builder.query({
+    getUsers: builder.query<EntityState<userInterface>, void>({
       query: () => 'user/getallusers',
-      transformResponse: (res: userInterface[]) => usersAdapter.setAll(initialState, res),
-      // providesTags: (result) => [{ type: 'Users', id: 'LIST'}, ...result?.ids.map(id => ({ type: 'Users', id}))]
+      transformResponse: (res: userInterface[]) => {
+        return usersAdapter.setAll(initialState, res);
+      },
+      providesTags: (result, error, arg) => result ? [{ type: 'Users' as const, id: 'LIST' }, ...result.ids.map(id => ({ type: 'Users' as const, id }))] : [{ type: 'Users' as const, id: 'LIST' }]
     }),
     signup: builder.mutation({
       query: credentials => ({
@@ -90,6 +93,13 @@ export const authSlice = apiSlice.injectEndpoints({
   })
 });
 
+export const selectUsersResult = authSlice.endpoints.getUsers.select();
+const selectUsersData = createSelector(selectUsersResult, result => result.data);
+export const {
+  selectAll: selectAllUsers,
+  selectById: selectUserById,
+  selectIds: selectUserIds
+} = usersAdapter.getSelectors<RootState>(state => selectUsersData(state) ?? initialState);
 export const {
   useSignupMutation,
   useLoginMutation,
@@ -100,5 +110,6 @@ export const {
   useResendVerifyEmailMutation,
   useForgotPasswordMutation,
   useResendFPEmailMutation,
-  useResetPasswordMutation
+  useResetPasswordMutation,
+  useGetUsersQuery
 } = authSlice;

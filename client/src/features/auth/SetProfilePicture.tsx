@@ -29,7 +29,7 @@ const SetProfilePicture = () => {
       formData.append('image', file);
       const res = await setPP(formData).unwrap();
       dispatch(setCredentials({ ...res }));
-      navigate('/lounge');
+      navigate('/chat');
     } catch (err: any) {
       if (!err.status) {
         setErrMsg('No Server Response');
@@ -72,7 +72,7 @@ const SetProfilePicture = () => {
               className='bg-mainBlue py-3 w-48 grid place-items-center rounded-3xl text-sm text-white capitalize md:text-lg'
               aria-label='sign up'
             >next</button>
-            <button className="flex items-center space-x-4 text-secondaryGray" onClick={() => navigate('/lounge')}>
+            <button className="flex items-center space-x-4 text-secondaryGray" onClick={() => navigate('/chat')}>
               Skip
               <MdOutlineNavigateNext className='text-xl' />
             </button>

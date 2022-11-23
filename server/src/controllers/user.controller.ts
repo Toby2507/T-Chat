@@ -9,7 +9,7 @@ import sendEmail from "../utils/mailer";
 export const getAllUsersHandler = async (req: Request, res: Response) => {
     const { _id } = res.locals.user;
     const users = await getAllUsers(_id);
-    const sanitizedUsers = users.map(user => omit(user, privateFields));
+    const sanitizedUsers = users.map(user => omit(user.toJSON(), privateFields));
     return res.status(200).json(sanitizedUsers);
 };
 

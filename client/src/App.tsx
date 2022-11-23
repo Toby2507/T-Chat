@@ -10,8 +10,7 @@ import ResetPassword from './features/auth/ResetPassword';
 import SetProfilePicture from './features/auth/SetProfilePicture';
 import Signup from './features/auth/Signup';
 import VerifyUser from './features/auth/VerifyUser';
-import ChatRoom from './features/chats/ChatRoom';
-import Lounge from './features/chats/Lounge';
+import Chat from './features/chats/Chat';
 
 const App = () => {
   return (
@@ -35,8 +34,7 @@ const App = () => {
         {/* GENERAL PROTECTED ROUTES */}
         <Route element={<PersistLogin />}>
           <Route element={<RequireAuth />}>
-            <Route path='lounge' element={<Lounge />} />
-            <Route path='chat' element={<ChatRoom />} />
+            <Route path='chat' element={<Chat />} />
           </Route>
         </Route>
       </Route>
