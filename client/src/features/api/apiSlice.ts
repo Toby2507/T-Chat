@@ -1,7 +1,8 @@
 import { BaseQueryFn } from '@reduxjs/toolkit/dist/query/baseQueryTypes';
 import { createApi, FetchArgs, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import { RootState } from '../../app/store';
-import { clearCredentials, setCredentials, stateInterface } from '../api/globalSlice';
+import { stateInterface } from '../../utilities/interfaces';
+import { clearCredentials, setCredentials } from '../api/globalSlice';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: 'http://localhost:5000/api/v1',
@@ -17,8 +18,8 @@ const baseQuery = fetchBaseQuery({
 
 const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (arg, api, extraOptions) => {
   let result = await baseQuery(arg, api, extraOptions);
-  if (result?.error?.status === 401) {
-    const refreshResult = await baseQuery('auth/refresh', api, extraOptions);
+  if (result?.error?.status === 401 || result?.error?.data === 'Unauthorized') {
+    const refreshResult = await baseQuery('auth/refreshaccess', api, extraOptions);
     if (refreshResult?.data) {
       const res = refreshResult.data as stateInterface;
       api.dispatch(setCredentials({ ...res }));

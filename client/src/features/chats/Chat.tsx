@@ -36,7 +36,7 @@ const ChatContainer = () => {
           <div className="shrink-0 grow-1 w-full h-full"><ChatRoom /></div>
         </motion.div>
       </section>
-      <section className="hidden relative w-full h-screen overflow-hidden md:block">
+      <section className="hidden relative w-full h-screen overflow-hidden md:block lg:hidden">
         <motion.div
           initial={false}
           variants={tabletVariants}

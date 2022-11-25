@@ -1,21 +1,6 @@
 import { createSlice, EntityId, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-
-export interface stateInterface {
-  user: userInterface | null;
-  accessToken: string | null;
-  currentChat: EntityId | null;
-  showChatBox: boolean;
-}
-
-export interface userInterface {
-  profilePicture: string | null;
-  _id: string;
-  email: string;
-  userName: string;
-  verified: boolean;
-}
-
+import { messageInterface, stateInterface } from "../../utilities/interfaces";
 
 const initialState: stateInterface = { user: null, accessToken: null, currentChat: null, showChatBox: false };
 
@@ -39,11 +24,13 @@ const userSlice = createSlice({
       state.accessToken = null;
       state.currentChat = null;
       state.showChatBox = false;
-    }
+    },
+    sendMsgThroughSocket: (state, action: PayloadAction<messageInterface>) => { },
+    recieveMsgFromSocket: (state) => { }
   }
 });
 
-export const { setCredentials, clearCredentials, setCurrentChat, toggleChatBox } = userSlice.actions;
+export const { setCredentials, clearCredentials, setCurrentChat, toggleChatBox, sendMsgThroughSocket, recieveMsgFromSocket } = userSlice.actions;
 export const selectUser = (state: RootState) => state.user.user;
 export const selectChat = (state: RootState) => state.user.currentChat;
 export const showChatBox = (state: RootState) => state.user.showChatBox;

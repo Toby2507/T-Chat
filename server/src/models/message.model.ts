@@ -14,6 +14,9 @@ export class Message {
 
   @prop({ required: true })
   users: string[];
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const MessageModel = getModelForClass(Message);

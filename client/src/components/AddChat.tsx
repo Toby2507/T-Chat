@@ -1,8 +1,8 @@
-import { IoIosSend } from 'react-icons/io';
-import { ImSpinner9 } from 'react-icons/im';
-import { MdEmojiEmotions } from 'react-icons/md';
-import { useState } from 'react';
 import Picker, { EmojiClickData } from 'emoji-picker-react';
+import { useState } from 'react';
+import { ImSpinner9 } from 'react-icons/im';
+import { IoIosSend } from 'react-icons/io';
+import { MdEmojiEmotions } from 'react-icons/md';
 
 interface addChatInterface {
   handleSendMessage: (msg: string) => Promise<void>;
@@ -28,7 +28,6 @@ const AddChat = ({ handleSendMessage, isLoading }: addChatInterface) => {
     previewConfig: { showPreview: false },
     lazyLoadEmojis: true
   };
-
   return (
     <div className="px-4 py-3 flex gap-3 items-center bg-mainGray">
       <div className='relative emoji'>
@@ -41,8 +40,9 @@ const AddChat = ({ handleSendMessage, isLoading }: addChatInterface) => {
           placeholder='Add a message..'
           value={msg}
           onChange={e => setMsg(e.target.value)}
+          onFocus={() => setShowEmojiPicker(false)}
           autoComplete='off'
-          className='flex-1 h-10 rounded-3xl bg-accentGray px-4 py-1 text-white text-sm focus:outline-none placeholder:text-white'
+          className='flex-1 h-10 rounded-3xl bg-accentGray px-4 py-1 text-white text-sm focus:outline-none placeholder:text-secondaryGray'
         />
         <button type='submit' aria-label='send message' className="w-10 h-10 rounded-full bg-accentGray grid place-items-center text-white text-2xl">{isLoading ? <ImSpinner9 className='animate-spin' /> : <IoIosSend />}</button>
       </form>

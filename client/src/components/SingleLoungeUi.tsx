@@ -12,7 +12,7 @@ const SingleLoungeUi = ({ userId }: uiInterface) => {
 
   return (
     <article className="flex items-center gap-3 pl-2 cursor-pointer">
-      <figure className="w-14 h-14 rounded-full">
+      <figure className="w-14 h-14 rounded-full skeleton">
         <img src={userInfo?.profilePicture ? userInfo.profilePicture : placeholderImg} alt="" className="w-full h-full object-cover rounded-full" />
       </figure>
       <div className="flex-1 flex flex-col pb-2 border-b border-accentGray">

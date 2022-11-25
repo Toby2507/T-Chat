@@ -4,7 +4,7 @@ import { allowedOrigins } from "../../config/corsOptions";
 export const corsCredentials = (req: Request, res: Response, next: NextFunction) => {
     const origin = req?.headers?.origin;
     if (allowedOrigins.includes(String(origin)) || !origin) {
-        res.header('Access-Control-Allow-Credentials', 'true')
+        res.header('Access-Control-Allow-Credentials', 'true');
     }
     next();
-}
+};

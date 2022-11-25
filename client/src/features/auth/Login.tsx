@@ -24,8 +24,8 @@ const Login = () => {
     const [userName, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [persist, setPersist] = useState<string>(JSON.parse(localStorage.getItem('persist') as string) || 'false');
-    const [isPwdVisible, setIsPwdVisible] = useState<boolean>();
     const [errMsg, setErrMsg] = useState<string>('');
+    const [isPwdVisible, setIsPwdVisible] = useState<boolean>(false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -81,8 +81,8 @@ const Login = () => {
                         <label htmlFor="password" className='text-sm text-white font-medium capitalize'>password: </label>
                         <div className="relative w-full h-10">
                             <input
-                                type="password"
-                                id={isPwdVisible ? "text" : "password"}
+                                id="password"
+                                type={isPwdVisible ? "text" : "password"}
                                 ref={pwdRef}
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}

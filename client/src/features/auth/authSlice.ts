@@ -1,7 +1,8 @@
 import { createEntityAdapter, createSelector, EntityState } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
+import { userInterface } from '../../utilities/interfaces';
 import { apiSlice } from '../api/apiSlice';
-import { clearCredentials, setCredentials, userInterface } from '../api/globalSlice';
+import { clearCredentials, setCredentials } from '../api/globalSlice';
 
 const usersAdapter = createEntityAdapter<userInterface>({
   selectId: user => user._id

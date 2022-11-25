@@ -13,6 +13,21 @@
   border-radius: 0.5rem;
 }
 
+.skeleton {
+  background-color: rgb(33, 34, 36);
+  animation: pulse 1s linear infinite alternate;
+}
+
+@keyframes pulse {
+  0% {
+    background-color: rgba(33, 34, 36, 0.8);
+  }
+
+  100% {
+    background-color: rgba(33, 34, 36, 0.4);
+  }
+}
+
 .emoji .EmojiPickerReact {
   position: absolute !important;
   border: none !important;
