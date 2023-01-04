@@ -1,8 +1,9 @@
-import { createListenerMiddleware, TypedStartListening } from "@reduxjs/toolkit";
-import { io, Socket } from "socket.io-client";
+import { TypedStartListening, createListenerMiddleware } from "@reduxjs/toolkit";
+import { Socket, io } from "socket.io-client";
 import { apiSlice } from "../features/api/apiSlice";
-import { recieveMsgFromSocket, sendMsgThroughSocket } from "../features/api/globalSlice";
-import { messagesAdapter } from "../features/chats/chatSlice";
+import { recieveMsgFromSocket, sendMsgThroughSocket, startApp } from "../features/api/globalSlice";
+import { authSlice } from "../features/auth/authSlice";
+import { chatSlice, messagesAdapter } from "../features/chats/chatSlice";
 import { ClientToServerEvents, ServerToClientEvents } from "../utilities/interfaces";
 import { AppDispatch, RootState } from "./store";
 
@@ -35,7 +36,27 @@ startAppListening({
   effect: async (action, listenerApi) => {
     socket.on('receive_msg', data => {
       messagesAdapter.addOne(messagesAdapter.getInitialState(), data);
-      listenerApi.dispatch(apiSlice.util.invalidateTags([{ type: 'Messages' as const, id: 'LIST' }]));
+      listenerApi.dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
+        const newUser = data.from && draft.entities[data.from];
+        if (newUser) {
+          newUser.messages = [...newUser.messages, data.id];
+          newUser.unread = [...newUser.unread, data.id];
+        }
+      }));
+      if (listenerApi.getState().user.currentChat === data.from) {
+        listenerApi.dispatch(apiSlice.util.invalidateTags([{ type: 'Messages' as const, id: data.from }]));
+      }
     });
+  }
+});
+
+startAppListening({
+  actionCreator: startApp,
+  effect: async (action, listenerApi) => {
+    const state = listenerApi.getState() as RootState;
+    const userIds = authSlice.endpoints.getUsers.select()(state).data?.ids;
+    if (userIds) {
+      userIds.forEach(id => { listenerApi.dispatch(chatSlice.endpoints.getMessages.initiate(id)); });
+    }
   }
 });

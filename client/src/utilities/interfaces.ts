@@ -6,7 +6,10 @@ export interface messageInterface {
   message: string;
   date: string;
   time: string;
+  read: boolean;
+  readers: string[];
   to?: string;
+  from?: string;
 }
 export interface ServerToClientEvents {
   noArg: () => void;
@@ -17,6 +20,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   add_user: (userId: string) => void;
   send_msg: (data: messageInterface) => void;
+  disconnect: () => void;
 }
 export interface stateInterface {
   user: userInterface | null;
@@ -30,5 +34,7 @@ export interface userInterface {
   email: string;
   userName: string;
   verified: boolean;
+  messages: EntityId[];
+  unread: EntityId[];
 }
 

@@ -1,7 +1,7 @@
 import { EntityId } from '@reduxjs/toolkit';
 import React from 'react';
 import { useAppSelector } from '../../app/hooks';
-import { getSelectors } from './chatSlice';
+import { messageSelectors } from './chatSlice';
 
 interface singleMessageInterface {
   prevId: EntityId;
@@ -12,10 +12,10 @@ interface singleMessageInterface {
 
 
 const SingleMessage = ({ currId, prevId, nextId, chatId }: singleMessageInterface) => {
-  const { selectMessagesById } = getSelectors(chatId);
-  const prevMsg = useAppSelector(state => selectMessagesById(state, prevId));
-  const currMsg = useAppSelector(state => selectMessagesById(state, currId));
-  const nextMsg = useAppSelector(state => selectMessagesById(state, nextId));
+  const selectMessageById = messageSelectors(chatId).selectById;
+  const prevMsg = useAppSelector(state => selectMessageById(state, prevId));
+  const currMsg = useAppSelector(state => selectMessageById(state, currId));
+  const nextMsg = useAppSelector(state => selectMessageById(state, nextId));
   const sent = `self-end flex flex-col items-end bg-mainBlue w-[90%] max-w-max rounded-2xl px-4 py-2 ${nextMsg?.fromSelf === currMsg?.fromSelf ? '' : 'rounded-br-none'}`;
   const recieved = `self-start flex flex-col items-start bg-mainGray w-[90%] max-w-max rounded-2xl px-4 py-2 ${nextMsg?.fromSelf === currMsg?.fromSelf ? '' : 'rounded-bl-none'}`;
   return (
@@ -33,4 +33,4 @@ const SingleMessage = ({ currId, prevId, nextId, chatId }: singleMessageInterfac
   );
 };
 
-export default SingleMessage;
+export default React.memo(SingleMessage);

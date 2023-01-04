@@ -11,8 +11,9 @@ const userSlice = createSlice({
     setCurrentChat: (state, action: PayloadAction<EntityId>) => {
       state.currentChat = action.payload;
     },
-    toggleChatBox: (state, action: PayloadAction<boolean>) => {
-      state.showChatBox = action.payload;
+    toggleChatBox: (state, action: PayloadAction<{ show: boolean, id: EntityId | null; }>) => {
+      state.showChatBox = action.payload.show;
+      state.currentChat = action.payload.id;
     },
     setCredentials: (state, action: PayloadAction<stateInterface>) => {
       const { user, accessToken } = action.payload;
@@ -26,11 +27,12 @@ const userSlice = createSlice({
       state.showChatBox = false;
     },
     sendMsgThroughSocket: (state, action: PayloadAction<messageInterface>) => { },
-    recieveMsgFromSocket: (state) => { }
+    recieveMsgFromSocket: (state) => { },
+    startApp: (state) => { },
   }
 });
 
-export const { setCredentials, clearCredentials, setCurrentChat, toggleChatBox, sendMsgThroughSocket, recieveMsgFromSocket } = userSlice.actions;
+export const { setCredentials, clearCredentials, setCurrentChat, toggleChatBox, sendMsgThroughSocket, recieveMsgFromSocket, startApp } = userSlice.actions;
 export const selectUser = (state: RootState) => state.user.user;
 export const selectChat = (state: RootState) => state.user.currentChat;
 export const showChatBox = (state: RootState) => state.user.showChatBox;

@@ -1,10 +1,10 @@
-import { createEntityAdapter, createSelector, EntityState } from '@reduxjs/toolkit';
+import { EntityState, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
-import { userInterface } from '../../utilities/interfaces';
+import { stateInterface, userInterface } from '../../utilities/interfaces';
 import { apiSlice } from '../api/apiSlice';
-import { clearCredentials, setCredentials } from '../api/globalSlice';
+import { clearCredentials, recieveMsgFromSocket, setCredentials } from '../api/globalSlice';
 
-const usersAdapter = createEntityAdapter<userInterface>({
+export const usersAdapter = createEntityAdapter<userInterface>({
   selectId: user => user._id
 });
 const initialState = usersAdapter.getInitialState();
@@ -14,18 +14,26 @@ export const authSlice = apiSlice.injectEndpoints({
     getUsers: builder.query<EntityState<userInterface>, void>({
       query: () => 'user/getallusers',
       transformResponse: (res: userInterface[]) => {
-        return usersAdapter.setAll(initialState, res);
+        const users = res.map(user => ({ ...user, messages: [], unread: [] }));
+        return usersAdapter.setAll(initialState, users);
+      },
+      async onCacheEntryAdded(arg, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+          dispatch(recieveMsgFromSocket());
+          await cacheEntryRemoved;
+        } catch (err) { console.log(err); }
       },
       providesTags: (result, error, arg) => result ? [{ type: 'Users' as const, id: 'LIST' }, ...result.ids.map(id => ({ type: 'Users' as const, id }))] : [{ type: 'Users' as const, id: 'LIST' }]
     }),
-    signup: builder.mutation({
+    signup: builder.mutation<stateInterface, { email: string, userName: string, password: string; }>({
       query: credentials => ({
         url: '/auth/signup',
         method: 'POST',
         body: { ...credentials }
       })
     }),
-    login: builder.mutation({
+    login: builder.mutation<stateInterface, { userName: string, password: string; }>({
       query: credentials => ({
         url: '/auth/login',
         method: 'POST',

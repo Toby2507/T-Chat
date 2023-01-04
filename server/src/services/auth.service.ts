@@ -1,25 +1,25 @@
-import { DocumentType } from "@typegoose/typegoose"
-import { omit } from "lodash"
-import SessionModel from "../models/session.model"
-import { privateFields, User } from "../models/user.model"
-import { signJWT } from "../utils/jwt"
+import { DocumentType } from "@typegoose/typegoose";
+import { omit } from "lodash";
+import SessionModel from "../models/session.model";
+import { privateFields, User } from "../models/user.model";
+import { signJWT } from "../utils/jwt";
 
 export const createSession = async (user: string) => {
-    return SessionModel.create({ user })
-}
+    return SessionModel.create({ user });
+};
 
 export const signAccessToken = (user: DocumentType<User>) => {
-    const payload = omit(user.toJSON(), privateFields)
-    const accessToken = signJWT(payload, 'accessTokenPrivateKey', { expiresIn: '15m' })
-    return accessToken
-}
+    const payload = omit(user.toJSON(), privateFields);
+    const accessToken = signJWT(payload, 'accessTokenPrivateKey', { expiresIn: '15m' });
+    return accessToken;
+};
 
 export const signRefreshToken = async (user: string) => {
-    const session = await createSession(user)
-    const refreshToken = signJWT({ sessionId: session._id }, 'refreshTokenPrivateKey', { expiresIn: '1d' })
-    return refreshToken
-}
+    const session = await createSession(user);
+    const refreshToken = signJWT({ sessionId: session._id, user }, 'refreshTokenPrivateKey', { expiresIn: '1d' });
+    return refreshToken;
+};
 
 export const findSessionById = (id: string) => {
-    return SessionModel.findById(id)
-}
+    return SessionModel.findById(id);
+};

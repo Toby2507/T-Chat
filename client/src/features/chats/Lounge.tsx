@@ -4,11 +4,11 @@ import { BiDotsVerticalRounded } from 'react-icons/bi';
 import { BsSearch } from 'react-icons/bs';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import Loader from '../../components/Loader';
-import LoungeLoader from '../../components/loaders/LoungeLoader';
 import SingleLoungeUi from '../../components/SingleLoungeUi';
 import Submenu from '../../components/Submenu';
+import LoungeLoader from '../../components/loaders/LoungeLoader';
 import placeholderImage from '../../images/unknownUser.png';
-import { selectUser, setCurrentChat, toggleChatBox } from '../api/globalSlice';
+import { selectUser, startApp, toggleChatBox } from '../api/globalSlice';
 import { selectUserIds, useGetUsersQuery } from '../auth/authSlice';
 
 const Lounge = () => {
@@ -23,11 +23,13 @@ const Lounge = () => {
 
     const changeCurrentChat = (index: number, userId: EntityId) => {
         setSelectedChat(index);
-        dispatch(setCurrentChat(userId));
-        dispatch(toggleChatBox(true));
+        dispatch(toggleChatBox({ show: true, id: userId }));
     };
 
-    useEffect(() => { isSuccess && setIds(userIds); }, [userIds, isSuccess]);
+    useEffect(() => {
+        isSuccess && setIds(userIds);
+        dispatch(startApp());
+    }, [userIds, isSuccess, dispatch]);
     useEffect(() => { isError && console.log(error); }, [error, isError]);
     return (
         <>

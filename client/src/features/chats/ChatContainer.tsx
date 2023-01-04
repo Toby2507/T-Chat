@@ -1,17 +1,16 @@
 import { EntityId } from '@reduxjs/toolkit';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BiDotsVerticalRounded } from 'react-icons/bi';
 import { IoIosArrowBack } from 'react-icons/io';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import AddChat from '../../components/AddChat';
 import Loader from '../../components/Loader';
-import MessageLoader from '../../components/loaders/MessageLoader';
 import Submenu from '../../components/Submenu';
 import placeholderImg from '../../images/unknownUser.png';
 import { selectChat, toggleChatBox } from '../api/globalSlice';
 import { selectUserById } from '../auth/authSlice';
-import { getSelectors, useLazyGetMessagesQuery, useSendMessageMutation } from './chatSlice';
 import SingleMessage from './SingleMessage';
+import { useReadMessagesQuery, useSendMessageMutation } from './chatSlice';
 
 const ChatContainer = () => {
   const dispatch = useAppDispatch();
@@ -19,37 +18,24 @@ const ChatContainer = () => {
   const currentChat = useAppSelector(selectChat) as EntityId;
   const chat = useAppSelector(state => selectUserById(state, currentChat));
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messageIds = useMemo(() => chat?.messages ?? [], [chat]);
   const [showOptions, setShowOptions] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [ids, setIds] = useState<EntityId[]>([]);
-  const [getMessages, { isLoading: messageLoading }] = useLazyGetMessagesQuery();
-  const { selectMessageIds } = getSelectors(currentChat);
-  const messageIds = useAppSelector(selectMessageIds);
+  const unreadMessages = chat?.unread as EntityId[];
+  useReadMessagesQuery({ messages: unreadMessages, chat: currentChat }, { skip: unreadMessages.length === 0 });
 
   const handleSendMessage = async (msg: string) => {
     try {
       await sendMessage({ message: msg, to: (chat?._id as string) });
     } catch (err) { console.log(err); }
   };
-
   const addChatProps = { handleSendMessage, isLoading };
-  useEffect(() => {
-    const fetchChat = async () => {
-      try {
-        await getMessages(currentChat).unwrap();
-      } catch (err) { console.log(err); }
-    };
-    fetchChat();
-  }, [currentChat, getMessages]);
-  useEffect(() => {
-    setIds(messageIds);
-  }, [messageIds]);
-  useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: "smooth" }); }, [ids]);
+  useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messageIds]);
   return (
     <>
       <section className="w-full h-screen grid grid-rows-[auto_1fr_auto]">
         <div className="relative px-4 py-2 flex gap-2 items-center bg-mainGray">
-          <button onClick={() => dispatch(toggleChatBox(false))}><IoIosArrowBack className='text-lg text-white' /></button>
+          <button onClick={() => dispatch(toggleChatBox({ show: false, id: null }))}><IoIosArrowBack className='text-lg text-white' /></button>
           <figure className="w-14 h-14 rounded-full">
             <img src={chat?.profilePicture ? chat.profilePicture : placeholderImg} alt={chat?.userName} className="w-full h-full object-cover rounded-full" />
           </figure>
@@ -61,15 +47,11 @@ const ChatContainer = () => {
           <Submenu setLoading={setLoading} isOpen={showOptions} />
         </div>
         <div className="w-full h-full p-4 flex flex-col justify-start space-y-3 overflow-y-scroll">
-          {messageLoading ? <MessageLoader /> : (
-            <>
-              {ids.map((id, i) => (
-                <div ref={scrollRef} key={id} className="w-full flex flex-col justify-start space-y-3">
-                  <SingleMessage currId={id} prevId={messageIds[i - 1]} nextId={messageIds[i + 1]} chatId={currentChat} />
-                </div>
-              ))}
-            </>
-          )}
+          {messageIds.map((id, i) => (
+            <div ref={scrollRef} key={id} className="w-full flex flex-col justify-start space-y-3">
+              <SingleMessage currId={id} prevId={messageIds[i - 1]} nextId={messageIds[i + 1]} chatId={currentChat} />
+            </div>
+          ))}
         </div>
         <AddChat {...addChatProps} />
       </section>

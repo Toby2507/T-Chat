@@ -6,6 +6,7 @@ import { findSessionById, signAccessToken, signRefreshToken } from "../services/
 import { createUser, findUserById, findUserByUsername } from "../services/user.service";
 import { verifyJWT } from "../utils/jwt";
 import sendEmail from "../utils/mailer";
+import { client } from "../app";
 
 export const createUserHandler = async (req: Request<{}, {}, createUserInput>, res: Response) => {
     const body = req.body;
@@ -56,11 +57,12 @@ export const logoutUserHandler = async (req: Request, res: Response) => {
     const cookies = req.cookies;
     if (!cookies?.jwt) return res.sendStatus(204);
     const refreshToken = cookies.jwt;
-    const decoded = verifyJWT<{ sessionId: string; }>(refreshToken, "refreshTokenPublicKey");
+    const decoded = verifyJWT<{ sessionId: string, user: string; }>(refreshToken, "refreshTokenPublicKey");
     if (!decoded) return res.sendStatus(204);
     const session = await findSessionById(decoded.sessionId);
     if (session?.valid) {
         session.valid = false;
+        await client.del(`user-${decoded.user}`);
         await session.save();
     }
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });

@@ -12,6 +12,7 @@ module.exports = {
       colors: {
         mainBlue: "#574AE2",
         accentBlue: "#4A45DB",
+        notBlue: "#04537d",
         accentPurple: "#828BD4",
         mainGray: "#212224",
         secondaryGray: "#6A706E",
@@ -29,4 +30,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};

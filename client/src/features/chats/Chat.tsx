@@ -4,7 +4,7 @@ import { showChatBox } from '../api/globalSlice';
 import ChatRoom from './ChatRoom';
 import Lounge from './Lounge';
 
-const ChatContainer = () => {
+const Chat = () => {
   const showChatbox = useAppSelector(showChatBox);
   const mobileVariants = {
     Lounge: {
@@ -56,4 +56,4 @@ const ChatContainer = () => {
   );
 };
 
-export default ChatContainer;
+export default Chat;
