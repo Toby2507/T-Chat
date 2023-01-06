@@ -23,11 +23,25 @@ export interface ClientToServerEvents {
   disconnect: () => void;
 }
 export interface stateInterface {
-  user: userInterface | null;
+  user: mainUserInterface | null;
   accessToken: string | null;
   currentChat: EntityId | null;
   showChatBox: boolean;
+  showProfile: boolean;
 }
+
+export interface mainUserInterface {
+  profilePicture: string | null;
+  _id: string;
+  email: string;
+  userName: string;
+  verified: boolean;
+  archivedChats: string[],
+  mutedUsers: string[],
+  blockedUsers: string[],
+  groups: string[],
+}
+
 export interface userInterface {
   profilePicture: string | null;
   _id: string;
@@ -36,5 +50,7 @@ export interface userInterface {
   verified: boolean;
   messages: EntityId[];
   unread: EntityId[];
+  isArchived: boolean;
+  isMuted: boolean;
+  isBlocked: boolean;
 }
-

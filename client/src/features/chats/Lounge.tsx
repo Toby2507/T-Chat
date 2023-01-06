@@ -2,6 +2,8 @@ import { EntityId } from '@reduxjs/toolkit';
 import { useEffect, useState } from 'react';
 import { BiDotsVerticalRounded } from 'react-icons/bi';
 import { BsSearch } from 'react-icons/bs';
+import { HiArchive } from 'react-icons/hi';
+import { IoIosArrowBack } from 'react-icons/io';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import Loader from '../../components/Loader';
 import SingleLoungeUi from '../../components/SingleLoungeUi';
@@ -20,6 +22,7 @@ const Lounge = () => {
     const [showOptions, setShowOptions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedChat, setSelectedChat] = useState<number>();
+    const [showArchived, setShowArchived] = useState<boolean>(false);
 
     const changeCurrentChat = (index: number, userId: EntityId) => {
         setSelectedChat(index);
@@ -31,6 +34,7 @@ const Lounge = () => {
         dispatch(startApp());
     }, [userIds, isSuccess, dispatch]);
     useEffect(() => { isError && console.log(error); }, [error, isError]);
+    useEffect(() => { currentUser?.archivedChats.length === 0 && setShowArchived(false); }, [currentUser?.archivedChats]);
     return (
         <>
             <section className="w-full h-screen px-4 py-6 flex flex-col items-center space-y-4 border-r border-mainGray transition-all duration-300">
@@ -42,6 +46,7 @@ const Lounge = () => {
                     <Submenu setLoading={setLoading} isOpen={showOptions} />
                 </div>
                 <form className='w-full h-auto'>
+                    {/* SEARCH BAR */}
                     <div className="relative w-full h-10">
                         <input
                             type="text"
@@ -52,12 +57,30 @@ const Lounge = () => {
                     </div>
                 </form>
                 {isLoading && !isSuccess ? <LoungeLoader /> : (
-                    <div className="w-full flex flex-col gap-2 py-2 border-t-2 border-accentGray overflow-y-auto">
-                        {ids.map((id, index) => (
-                            <div key={id} className={selectedChat === index ? 'bg-mainGray/40' : ''} onClick={() => changeCurrentChat(index, id)}>
-                                <SingleLoungeUi userId={id} />
+                    <div className="w-full flex flex-col items-center gap-2 overflow-y-auto">
+                        {/* SHOW ARCHIVE FUNCTIONALITY */}
+                        {currentUser?.archivedChats.length !== 0 && (
+                            <div className="w-full flex items-center gap-6 px-2">
+                                {showArchived ? (
+                                    <span className="text-xl text-secondaryGray" onClick={() => setShowArchived(false)}><IoIosArrowBack /></span>
+                                ) : (
+                                    <span className="text-xl text-secondaryGray"><HiArchive /></span>
+                                )}
+                                <h2 className="flex-1 text-base text-white" onClick={() => setShowArchived(true)}>Archived</h2>
+                                <p className="text-base text-secondaryGray font-medium">{currentUser?.archivedChats.length}</p>
                             </div>
-                        ))}
+                        )}
+                        {/* CHAT INSTANCES */}
+                        <div className="w-full flex flex-col gap-2 py-2 border-t-2 border-accentGray">
+                            {ids.filter(id => {
+                                const isArchived = currentUser?.archivedChats.includes(id as string);
+                                return showArchived ? (isArchived && id) : (!isArchived && id);
+                            }).map((id, index) => (
+                                <div key={id} className={selectedChat === index ? 'bg-mainGray/40' : ''} onClick={() => changeCurrentChat(index, id)}>
+                                    <SingleLoungeUi userId={id} />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
             </section>

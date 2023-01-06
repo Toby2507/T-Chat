@@ -7,7 +7,7 @@ import AddChat from '../../components/AddChat';
 import Loader from '../../components/Loader';
 import Submenu from '../../components/Submenu';
 import placeholderImg from '../../images/unknownUser.png';
-import { selectChat, toggleChatBox } from '../api/globalSlice';
+import { selectChat, toggleChatBox, toggleProfile } from '../api/globalSlice';
 import { selectUserById } from '../auth/authSlice';
 import SingleMessage from './SingleMessage';
 import { useReadMessagesQuery, useSendMessageMutation } from './chatSlice';
@@ -39,7 +39,7 @@ const ChatContainer = () => {
           <figure className="w-14 h-14 rounded-full">
             <img src={chat?.profilePicture ? chat.profilePicture : placeholderImg} alt={chat?.userName} className="w-full h-full object-cover rounded-full" />
           </figure>
-          <div className="flex-1 flex flex-col items-start justify-center">
+          <div className="flex-1 flex flex-col items-start justify-center" onClick={() => dispatch(toggleProfile(true))}>
             <h1 className="text-white text-base capitalize font-medium">{chat?.userName}</h1>
             <span className="text-secondaryGray text-xs">Active</span>
           </div>

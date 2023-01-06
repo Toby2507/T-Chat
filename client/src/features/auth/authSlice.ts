@@ -1,5 +1,5 @@
 import { EntityState, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
-import { RootState } from '../../app/store';
+import { RootState, store } from '../../app/store';
 import { stateInterface, userInterface } from '../../utilities/interfaces';
 import { apiSlice } from '../api/apiSlice';
 import { clearCredentials, recieveMsgFromSocket, setCredentials } from '../api/globalSlice';
@@ -14,7 +14,14 @@ export const authSlice = apiSlice.injectEndpoints({
     getUsers: builder.query<EntityState<userInterface>, void>({
       query: () => 'user/getallusers',
       transformResponse: (res: userInterface[]) => {
-        const users = res.map(user => ({ ...user, messages: [], unread: [] }));
+        const state = store.getState() as RootState;
+        const myInfo = state.user.user;
+        const users = res.map(user => {
+          if (myInfo?.archivedChats.includes(user._id)) { user.isArchived = true; } else { user.isArchived = false; }
+          if (myInfo?.blockedUsers.includes(user._id)) { user.isBlocked = true; } else { user.isBlocked = false; }
+          if (myInfo?.mutedUsers.includes(user._id)) { user.isMuted = true; } else { user.isMuted = false; }
+          return { ...user, messages: [], unread: [] };
+        });
         return usersAdapter.setAll(initialState, users);
       },
       async onCacheEntryAdded(arg, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {

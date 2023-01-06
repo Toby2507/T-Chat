@@ -36,6 +36,7 @@ startAppListening({
   effect: async (action, listenerApi) => {
     socket.on('receive_msg', data => {
       messagesAdapter.addOne(messagesAdapter.getInitialState(), data);
+      listenerApi.dispatch(apiSlice.util.invalidateTags([{ type: 'Messages' as const, id: data.from }]));
       listenerApi.dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
         const newUser = data.from && draft.entities[data.from];
         if (newUser) {
@@ -43,9 +44,6 @@ startAppListening({
           newUser.unread = [...newUser.unread, data.id];
         }
       }));
-      if (listenerApi.getState().user.currentChat === data.from) {
-        listenerApi.dispatch(apiSlice.util.invalidateTags([{ type: 'Messages' as const, id: data.from }]));
-      }
     });
   }
 });

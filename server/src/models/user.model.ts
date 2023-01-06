@@ -41,6 +41,18 @@ export class User {
     @prop({ default: null })
     profilePicture: string | null;
 
+    @prop({ default: [] })
+    archivedChats: string[];
+
+    @prop({ default: [] })
+    blockedUsers: string[];
+
+    @prop({ default: [] })
+    mutedUsers: string[];
+
+    @prop({ default: [] })
+    groups: string[];
+
     async validatePassword(this: DocumentType<User>, password: string) {
         try {
             return await bcrypt.compare(password, this.password);

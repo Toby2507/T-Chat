@@ -13,14 +13,14 @@ export const addMessageHandler = async (req: Request<{}, {}, addMessageInput>, r
   if (myOldMessages) {
     const myParsedMessages = myOldMessages && JSON.parse(myOldMessages);
     myParsedMessages.push(newMsg);
-    await client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify(myParsedMessages));
+    client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify(myParsedMessages));
     if (yourOldMessages) {
       const yourParsedMessages = yourOldMessages && JSON.parse(yourOldMessages);
       yourParsedMessages.push({ ...newMsg, fromSelf: false });
-      await client.hSet(`user-${to}`, `messages-${from}`, JSON.stringify(yourParsedMessages));
+      client.hSet(`user-${to}`, `messages-${from}`, JSON.stringify(yourParsedMessages));
     }
   } else {
-    await client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify([newMsg]));
+    client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify([newMsg]));
   }
   return res.status(201).json(newMsg);
 };
@@ -32,7 +32,7 @@ export const getMessagesHandler = async (req: Request<getMessagesInput>, res: Re
   if (cachedMessages) return res.json(JSON.parse(cachedMessages));
   const chatMessages = await getChatMessages(from, to);
   const messages = chatMessages.map(msg => formatMessage(msg, from));
-  await client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify(messages));
+  client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify(messages));
   return res.json(messages);
 };
 
@@ -49,7 +49,7 @@ export const readUserMessagesHandler = async (req: Request<{}, {}, readUserMessa
     }
     return msg;
   });
-  await client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify(updatedMessages));
+  client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify(updatedMessages));
   if (!isUpdated.acknowledged) return res.status(401).send();
   return res.status(204).send();
 };

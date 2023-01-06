@@ -11,6 +11,7 @@ import SetProfilePicture from './features/auth/SetProfilePicture';
 import Signup from './features/auth/Signup';
 import VerifyUser from './features/auth/VerifyUser';
 import Chat from './features/chats/Chat';
+import ChatProfile from './features/chats/ChatProfile';
 
 const App = () => {
   return (
@@ -35,6 +36,7 @@ const App = () => {
         <Route element={<PersistLogin />}>
           <Route element={<RequireAuth />}>
             <Route path='chat' element={<Chat />} />
+            <Route path='profile' element={<ChatProfile />} />
           </Route>
         </Route>
       </Route>

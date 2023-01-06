@@ -57,6 +57,7 @@ export const chatSlice = apiSlice.injectEndpoints({
             let newMessages = [...user.messages];
             messageIds.forEach(id => { !newMessages.includes(id) && newMessages.push(id); });
             user.messages = newMessages;
+            unreadMsgs = unreadMsgs.filter(id => !user.unread.includes(id));
             user.unread = [...user.unread, ...unreadMsgs];
           }
         }));
@@ -72,9 +73,8 @@ export const chatSlice = apiSlice.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         const reading = dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
           const user = draft.entities[arg.chat];
-          user && (user.unread = []);
+          if (user) user.unread = [];
         }));
-        dispatch(apiSlice.util.invalidateTags([{ type: 'Messages' as const, id: arg.chat }]));
         queryFulfilled.catch(reading.undo);
       }
     })

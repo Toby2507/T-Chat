@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { omit } from "lodash";
 import { nanoid } from "nanoid";
-import { privateFields } from "../models/user.model";
+import UserModel, { privateFields } from "../models/user.model";
 import { forgotPasswordInput, resendPasswordResetEmailInput, resetPasswordInput, verifyUserInput } from "../schemas/user.schema";
 import { findUserByEmail, findUserById, getAllUsers, setProfilePicture } from "../services/user.service";
 import sendEmail from "../utils/mailer";
