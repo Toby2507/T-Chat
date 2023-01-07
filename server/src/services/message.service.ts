@@ -21,7 +21,12 @@ export const formatMessage = (msg: Message, from: string) => {
     message: msg.message,
     date: over1week ? dayjs(msg.createdAt).format('DD/MM/YYYY') : dayjs(msg.createdAt).format('dddd'),
     time: dayjs(msg.createdAt).format('h:mma'),
+    datetime: dayjs(msg.createdAt).valueOf(),
     read: msg.read,
     readers: msg.readers
   };
+};
+
+export const deleteMessages = (msgs: string[]) => {
+  return MessageModel.deleteMany({ _id: { $in: msgs } });
 };

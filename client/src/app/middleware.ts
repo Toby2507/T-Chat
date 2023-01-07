@@ -42,6 +42,7 @@ startAppListening({
         if (newUser) {
           newUser.messages = [...newUser.messages, data.id];
           newUser.unread = [...newUser.unread, data.id];
+          newUser.lastUpdated = data.datetime;
         }
       }));
     });

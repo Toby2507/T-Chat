@@ -29,6 +29,7 @@ export const chatSlice = apiSlice.injectEndpoints({
             const newMessages = [...user.messages];
             newMessages.push(result.data.id);
             user.messages = newMessages;
+            user.lastUpdated = result.data.datetime;
           }
         }));
         dispatch(apiSlice.util.invalidateTags([{ type: 'Messages' as const, id: arg.to }]));
@@ -59,6 +60,7 @@ export const chatSlice = apiSlice.injectEndpoints({
             user.messages = newMessages;
             unreadMsgs = unreadMsgs.filter(id => !user.unread.includes(id));
             user.unread = [...user.unread, ...unreadMsgs];
+            user.lastUpdated = Math.max(...newMessages.map(id => (messages[id]?.datetime as number)));
           }
         }));
       },

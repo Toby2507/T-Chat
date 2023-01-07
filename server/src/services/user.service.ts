@@ -27,3 +27,7 @@ export const setProfilePicture = (id: string, profilePicture: string) => {
 export const getAllUsers = (currentUserId: string) => {
     return UserModel.find({ _id: { $ne: currentUserId } }).sort('userName');
 };
+
+export const updateUsersGroupList = (userIds: string[], groupId: string) => {
+    return UserModel.updateMany({ _id: { $in: userIds } }, { $addToSet: { groups: groupId } }, { multi: true });
+};

@@ -6,6 +6,7 @@ export interface messageInterface {
   message: string;
   date: string;
   time: string;
+  datetime: number;
   read: boolean;
   readers: string[];
   to?: string;
@@ -50,6 +51,9 @@ export interface userInterface {
   verified: boolean;
   messages: EntityId[];
   unread: EntityId[];
+  blockedUsers?: string[];
+  blockedMe: boolean;
+  lastUpdated: number;
   isArchived: boolean;
   isMuted: boolean;
   isBlocked: boolean;

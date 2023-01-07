@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import { setChatInfoInput } from '../schemas/chatSettings.schema';
 import { updateUser } from '../services/chatSettings.service';
-import { client } from '../app';
-import log from '../utils/logger';
 
 export const setChatInfoHandler = async (req: Request<setChatInfoInput["params"], {}, setChatInfoInput["body"]>, res: Response) => {
   const { userId } = req.params;

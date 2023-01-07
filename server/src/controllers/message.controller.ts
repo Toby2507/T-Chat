@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { client, newMessage } from '../app';
-import { addMessageInput, getMessagesInput, readUserMessagesInput } from '../schemas/message.schema';
-import { addMessage, formatMessage, getChatMessages, readUserMessages } from '../services/message.service';
+import { addMessageInput, clearChatInput, getMessagesInput, readUserMessagesInput } from '../schemas/message.schema';
+import { addMessage, deleteMessages, formatMessage, getChatMessages, readUserMessages } from '../services/message.service';
 
 export const addMessageHandler = async (req: Request<{}, {}, addMessageInput>, res: Response) => {
   const { message, to } = req.body;
@@ -40,6 +40,7 @@ export const readUserMessagesHandler = async (req: Request<{}, {}, readUserMessa
   const { messages, to } = req.body;
   const { _id: from } = res.locals.user;
   const isUpdated = await readUserMessages(messages, from);
+  if (!isUpdated.acknowledged) return res.status(401).send();
   const oldMessages = await client.hGet(`user-${from}`, `messages-${to}`);
   const parsedMessages = oldMessages && JSON.parse(oldMessages);
   const updatedMessages = parsedMessages.map((msg: newMessage) => {
@@ -50,6 +51,14 @@ export const readUserMessagesHandler = async (req: Request<{}, {}, readUserMessa
     return msg;
   });
   client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify(updatedMessages));
-  if (!isUpdated.acknowledged) return res.status(401).send();
+  return res.status(204).send();
+};
+
+export const clearChatHandler = async (req: Request<{}, {}, clearChatInput>, res: Response) => {
+  const { messageIds, to } = req.body;
+  const { _id: from } = res.locals.user;
+  const isDeleted = await deleteMessages(messageIds);
+  if (!isDeleted.acknowledged) return res.status(401).send();
+  await client.hDel(`user-${from}`, `messages-${to}`);
   return res.status(204).send();
 };

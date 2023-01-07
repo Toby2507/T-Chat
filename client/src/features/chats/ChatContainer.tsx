@@ -11,10 +11,12 @@ import { selectChat, toggleChatBox, toggleProfile } from '../api/globalSlice';
 import { selectUserById } from '../auth/authSlice';
 import SingleMessage from './SingleMessage';
 import { useReadMessagesQuery, useSendMessageMutation } from './chatSlice';
+import { useSetChatInfoMutation } from '../settings/chatSettingSlice';
 
 const ChatContainer = () => {
   const dispatch = useAppDispatch();
   const [sendMessage, { isLoading }] = useSendMessageMutation();
+  const [setChatInfo] = useSetChatInfoMutation();
   const currentChat = useAppSelector(selectChat) as EntityId;
   const chat = useAppSelector(state => selectUserById(state, currentChat));
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -29,7 +31,8 @@ const ChatContainer = () => {
       await sendMessage({ message: msg, to: (chat?._id as string) });
     } catch (err) { console.log(err); }
   };
-  const addChatProps = { handleSendMessage, isLoading };
+  const blockUser = () => { setChatInfo({ control: "blockedUsers", set: !chat?.isBlocked as boolean, userId: currentChat as string }); };
+  const addChatProps = { handleSendMessage, isLoading, isBlocked: chat?.isBlocked as boolean, userId: currentChat as string };
   useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messageIds]);
   return (
     <>
@@ -52,8 +55,13 @@ const ChatContainer = () => {
               <SingleMessage currId={id} prevId={messageIds[i - 1]} nextId={messageIds[i + 1]} chatId={currentChat} />
             </div>
           ))}
+          {chat?.isBlocked && <h2 className="w-max self-center rounded-lg bg-mainGray px-6 py-2 text-secondaryGray text-xs text-center font-medium cursor-pointer" onClick={blockUser}>You have blocked this user. Tap to unblock.</h2>}
         </div>
-        <AddChat {...addChatProps} />
+        <>
+          {chat?.blockedMe ? (
+            <h2 className="bg-mainGray px-4 py-3 text-secondaryGray text-xs text-center">You have been blocked by this user.</h2>
+          ) : <AddChat {...addChatProps} />}
+        </>
       </section>
       {loading && <Loader />}
     </>

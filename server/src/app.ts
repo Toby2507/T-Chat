@@ -14,6 +14,7 @@ import deserializeUser from "./middlewares/deserializeUser";
 import errorHandlerMiddleware from "./middlewares/errorHandler";
 import authRoutes from "./routes/auth.route";
 import settingsRoutes from "./routes/chatSettings.route";
+import groupChatRoutes from "./routes/groupChat.route";
 import messageRoutes from "./routes/message.route";
 import userRoutes from "./routes/user.route";
 import connectDB from "./utils/connectDB";
@@ -77,6 +78,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/message', messageRoutes);
 app.use('/api/v1/chatsettings', settingsRoutes);
+app.use('/api/v1/groupchat', groupChatRoutes);
 
 app.use(errorHandlerMiddleware);
 

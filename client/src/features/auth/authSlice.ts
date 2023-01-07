@@ -20,7 +20,9 @@ export const authSlice = apiSlice.injectEndpoints({
           if (myInfo?.archivedChats.includes(user._id)) { user.isArchived = true; } else { user.isArchived = false; }
           if (myInfo?.blockedUsers.includes(user._id)) { user.isBlocked = true; } else { user.isBlocked = false; }
           if (myInfo?.mutedUsers.includes(user._id)) { user.isMuted = true; } else { user.isMuted = false; }
-          return { ...user, messages: [], unread: [] };
+          if (user.blockedUsers?.includes(myInfo?._id as string)) { user.blockedMe = true; } else { user.blockedMe = false; }
+          delete user.blockedUsers;
+          return { ...user, messages: [], unread: [], lastUpdated: Date.now() };
         });
         return usersAdapter.setAll(initialState, users);
       },
@@ -114,7 +116,8 @@ const selectUsersData = createSelector(selectUsersResult, result => result.data)
 export const {
   selectAll: selectAllUsers,
   selectById: selectUserById,
-  selectIds: selectUserIds
+  selectIds: selectUserIds,
+  selectEntities: selectUserEntities
 } = usersAdapter.getSelectors<RootState>(state => selectUsersData(state) ?? initialState);
 export const {
   useSignupMutation,

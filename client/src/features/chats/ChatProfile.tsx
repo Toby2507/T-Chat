@@ -6,15 +6,19 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import placeholderImg from '../../images/unknownUser.png';
 import { selectChat, toggleProfile } from '../api/globalSlice';
 import { selectUserById } from '../auth/authSlice';
-import { useSetChatInfoMutation } from '../settings/chatSettingSlice';
+import { useClearChatMutation, useSetChatInfoMutation } from '../settings/chatSettingSlice';
+
 const ChatProfile = () => {
   const dispatch = useAppDispatch();
   const [setChatInfo] = useSetChatInfoMutation();
+  const [clearChat] = useClearChatMutation();
   const userId = useAppSelector(selectChat);
   const userInfo = useAppSelector(state => selectUserById(state, userId as EntityId));
   const muteChat = () => { try { setChatInfo({ control: "mutedUsers", set: !userInfo?.isMuted as boolean, userId: userId as string }); } catch (error) { console.log(error); } };
   const archiveChat = () => { setChatInfo({ control: "archivedChats", set: !userInfo?.isArchived as boolean, userId: userId as string }); };
   const blockUser = () => { setChatInfo({ control: "blockedUsers", set: !userInfo?.isBlocked as boolean, userId: userId as string }); };
+  const clearChatHistory = () => { clearChat({ messageIds: (userInfo?.messages as string[]), to: userId as string }); };
+
   return (
     <section className="w-full h-screen grid grid-rows-[auto_1fr] border-l border-mainGray">
       <article className="relative p-5 flex gap-6 items-center bg-mainGray">
@@ -63,7 +67,7 @@ const ChatProfile = () => {
           <article className="w-full flex items-center cursor-pointer py-3 border-b border-accentGray last:border-none" onClick={archiveChat}>
             <p className=" text-accentPurple text-base capitalize">{userInfo?.isArchived ? "unarchive chat" : "archive chat"}</p>
           </article>
-          <article className="w-full flex items-center cursor-pointer py-3 border-b border-accentGray last:border-none">
+          <article className="w-full flex items-center cursor-pointer py-3 border-b border-accentGray last:border-none" onClick={clearChatHistory}>
             <p className=" text-red-500 text-base capitalize">clear chat</p>
           </article>
           <article className="w-full flex items-center cursor-pointer py-3 border-b border-accentGray last:border-none" onClick={blockUser}>

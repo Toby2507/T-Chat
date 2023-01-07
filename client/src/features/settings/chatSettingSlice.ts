@@ -1,6 +1,7 @@
 import { apiSlice } from "../api/apiSlice";
-import { setUserChatOptions } from "../api/globalSlice";
+import { setUserChatOptions, toggleProfile } from "../api/globalSlice";
 import { authSlice } from "../auth/authSlice";
+import { messagesAdapter } from "../chats/chatSlice";
 
 export interface setInterface {
   control: "archivedChats" | "blockedUsers" | "mutedUsers";
@@ -38,10 +39,32 @@ export const settingsSlice = apiSlice.injectEndpoints({
         }));
         try {
           await queryFulfilled;
+        } catch (err) { patchedUser.undo(); dispatch(setUserChatOptions({ ...arg, set: !arg.set })); }
+      }
+    }),
+    clearChat: builder.mutation<unknown, { messageIds: string[], to: string; }>({
+      query: body => ({
+        url: 'message/clearchat',
+        method: 'DELETE',
+        body: { ...body }
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        const patchedUser = dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
+          const user = draft.entities[arg.to];
+          if (user) {
+            user.messages = [];
+            user.unread = [];
+          }
+        }));
+        dispatch(toggleProfile(false));
+        try {
+          await queryFulfilled;
+          messagesAdapter.removeMany(messagesAdapter.getInitialState(), arg.messageIds);
+          dispatch(apiSlice.util.invalidateTags([{ type: 'Messages' as const, id: arg.to }]));
         } catch (err) { patchedUser.undo(); }
       }
     })
   })
 });
 
-export const { useSetChatInfoMutation } = settingsSlice;
+export const { useSetChatInfoMutation, useClearChatMutation } = settingsSlice;

@@ -10,14 +10,15 @@ import SingleLoungeUi from '../../components/SingleLoungeUi';
 import Submenu from '../../components/Submenu';
 import LoungeLoader from '../../components/loaders/LoungeLoader';
 import placeholderImage from '../../images/unknownUser.png';
+import { userInterface } from '../../utilities/interfaces';
 import { selectUser, startApp, toggleChatBox } from '../api/globalSlice';
-import { selectUserIds, useGetUsersQuery } from '../auth/authSlice';
+import { selectUserEntities, useGetUsersQuery } from '../auth/authSlice';
 
 const Lounge = () => {
     const dispatch = useAppDispatch();
     const { isLoading, isSuccess, isError, error } = useGetUsersQuery();
     const currentUser = useAppSelector(selectUser);
-    const userIds = useAppSelector(selectUserIds);
+    const users = useAppSelector(selectUserEntities);
     const [ids, setIds] = useState<EntityId[]>([]);
     const [showOptions, setShowOptions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -30,9 +31,13 @@ const Lounge = () => {
     };
 
     useEffect(() => {
-        isSuccess && setIds(userIds);
-        dispatch(startApp());
-    }, [userIds, isSuccess, dispatch]);
+        isSuccess && dispatch(startApp());
+    }, [isSuccess, dispatch]);
+    useEffect(() => {
+        const usersInfo = Object.values(users).map(user => user as userInterface);
+        const sortedUsers = usersInfo.sort((a, b) => (b?.lastUpdated as number) - (a?.lastUpdated as number));
+        setIds(sortedUsers.map(user => user._id));
+    }, [users]);
     useEffect(() => { isError && console.log(error); }, [error, isError]);
     useEffect(() => { currentUser?.archivedChats.length === 0 && setShowArchived(false); }, [currentUser?.archivedChats]);
     return (
