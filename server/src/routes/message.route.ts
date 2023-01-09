@@ -8,7 +8,7 @@ const router = Router();
 
 router.use(requireUser);
 router.post('/addmsg', validateSchema(addMessageSchema), addMessageHandler);
-router.get('/getmsg/:to', validateSchema(getMessagesSchema), getMessagesHandler);
+router.post('/getmsg/:to', validateSchema(getMessagesSchema), getMessagesHandler);
 router.patch('/readmsgs', validateSchema(readUserMessagesSchema), readUserMessagesHandler);
 router.delete('/clearchat', validateSchema(clearChatSchema), clearChatHandler);
 

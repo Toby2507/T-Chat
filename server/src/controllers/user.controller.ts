@@ -3,14 +3,18 @@ import { omit } from "lodash";
 import { nanoid } from "nanoid";
 import { privateFields } from "../models/user.model";
 import { forgotPasswordInput, resendPasswordResetEmailInput, resetPasswordInput, verifyUserInput } from "../schemas/user.schema";
-import { findUserByEmail, findUserById, getAllUsers, setProfilePicture } from "../services/user.service";
+import { findUserByEmail, findUserById, getAllUsers, getUserGroups, setProfilePicture } from "../services/user.service";
 import sendEmail from "../utils/mailer";
+import { getGroupChats } from "../services/groupChat.service";
 
 export const getAllUsersHandler = async (req: Request, res: Response) => {
-    const { _id } = res.locals.user;
-    const users = await getAllUsers(_id);
-    const sanitizedUsers = users.map(user => omit(user.toJSON(), [...privateFields, "archivedChats", "mutedUsers"]));
-    return res.status(200).json(sanitizedUsers);
+    const { _id: from } = res.locals.user;
+    const users = await getAllUsers(from);
+    const groups = await getUserGroups(from);
+    const groupChats = await getGroupChats(groups?.groups as string[], from);
+    const sanitizedGroupChats = groupChats.map(groupChat => omit(groupChat.toJSON(), privateFields));
+    const sanitizedUsers = users.map(user => omit(user.toJSON(), [...privateFields, "archivedChats", "mutedUsers", "verified"]));
+    return res.status(200).json({ users: sanitizedUsers, groups: sanitizedGroupChats });
 };
 
 export const verifyUserHandler = async (req: Request<verifyUserInput>, res: Response) => {

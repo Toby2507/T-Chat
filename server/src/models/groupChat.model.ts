@@ -6,7 +6,7 @@ import { Severity, getModelForClass, index, modelOptions, prop } from "@typegoos
 })
 export class GroupChat {
   @prop({ required: true, unique: true })
-  name: string;
+  userName: string;
 
   @prop({ default: "" })
   description: string;

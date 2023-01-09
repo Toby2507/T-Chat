@@ -1,20 +1,20 @@
-import { createSlice, EntityId, PayloadAction } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-import { messageInterface, stateInterface } from "../../utilities/interfaces";
+import { currentChatInterface, messageInterface, stateInterface } from "../../utilities/interfaces";
 import { setInterface } from "../settings/chatSettingSlice";
 
-const initialState: stateInterface = { user: null, accessToken: null, currentChat: null, showChatBox: false, showProfile: false };
+const initialState: stateInterface = { user: null, accessToken: null, currentChat: { id: null, isGroup: false }, showChatBox: false, showProfile: false };
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setCurrentChat: (state, action: PayloadAction<EntityId>) => {
+    setCurrentChat: (state, action: PayloadAction<currentChatInterface>) => {
       state.currentChat = action.payload;
     },
-    toggleChatBox: (state, action: PayloadAction<{ show: boolean, id: EntityId | null; }>) => {
+    toggleChatBox: (state, action: PayloadAction<{ show: boolean, chat: currentChatInterface; }>) => {
       state.showChatBox = action.payload.show;
-      state.currentChat = action.payload.id;
+      state.currentChat = action.payload.chat;
     },
     toggleProfile: (state, action: PayloadAction<boolean>) => {
       state.showProfile = action.payload;
@@ -38,15 +38,18 @@ const userSlice = createSlice({
         }
       }
     },
+    addNewGroup: (state, action: PayloadAction<string>) => {
+      state.user?.groups.push(action.payload);
+    },
     setCredentials: (state, action: PayloadAction<stateInterface>) => {
       const { user, accessToken } = action.payload;
-      if (user) state.user = user;
+      if (user) state.user = { ...user };
       if (accessToken) state.accessToken = accessToken;
     },
     clearCredentials: (state) => {
       state.user = null;
       state.accessToken = null;
-      state.currentChat = null;
+      state.currentChat = { id: null, isGroup: false };
       state.showChatBox = false;
     },
     sendMsgThroughSocket: (state, action: PayloadAction<messageInterface>) => { },
@@ -55,7 +58,18 @@ const userSlice = createSlice({
   }
 });
 
-export const { setCredentials, clearCredentials, setCurrentChat, toggleChatBox, toggleProfile, sendMsgThroughSocket, recieveMsgFromSocket, startApp, setUserChatOptions } = userSlice.actions;
+export const {
+  setCredentials,
+  clearCredentials,
+  setCurrentChat,
+  toggleChatBox,
+  toggleProfile,
+  sendMsgThroughSocket,
+  recieveMsgFromSocket,
+  startApp,
+  setUserChatOptions,
+  addNewGroup
+} = userSlice.actions;
 export const selectUser = (state: RootState) => state.user.user;
 export const selectChat = (state: RootState) => state.user.currentChat;
 export const showChatBox = (state: RootState) => state.user.showChatBox;

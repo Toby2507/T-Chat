@@ -1,4 +1,4 @@
-import { TypedStartListening, createListenerMiddleware } from "@reduxjs/toolkit";
+import { EntityId, TypedStartListening, createListenerMiddleware } from "@reduxjs/toolkit";
 import { Socket, io } from "socket.io-client";
 import { apiSlice } from "../features/api/apiSlice";
 import { recieveMsgFromSocket, sendMsgThroughSocket, startApp } from "../features/api/globalSlice";
@@ -53,9 +53,9 @@ startAppListening({
   actionCreator: startApp,
   effect: async (action, listenerApi) => {
     const state = listenerApi.getState() as RootState;
-    const userIds = authSlice.endpoints.getUsers.select()(state).data?.ids;
+    let userIds = authSlice.endpoints.getUsers.select()(state).data?.entities;
     if (userIds) {
-      userIds.forEach(id => { listenerApi.dispatch(chatSlice.endpoints.getMessages.initiate(id)); });
+      Object.values(userIds).forEach(user => { listenerApi.dispatch(chatSlice.endpoints.getMessages.initiate({ to: user?._id as EntityId, isGroup: user?.isGroup as boolean })); });
     }
   }
 });

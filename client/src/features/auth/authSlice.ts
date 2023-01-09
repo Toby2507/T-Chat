@@ -1,30 +1,42 @@
 import { EntityState, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { RootState, store } from '../../app/store';
-import { stateInterface, userInterface } from '../../utilities/interfaces';
+import { groupInterface, stateInterface, userInterface } from '../../utilities/interfaces';
 import { apiSlice } from '../api/apiSlice';
-import { clearCredentials, recieveMsgFromSocket, setCredentials } from '../api/globalSlice';
+import { clearCredentials, recieveMsgFromSocket, setCredentials, startApp } from '../api/globalSlice';
 
-export const usersAdapter = createEntityAdapter<userInterface>({
+export const usersAdapter = createEntityAdapter<userInterface | groupInterface>({
   selectId: user => user._id
 });
 const initialState = usersAdapter.getInitialState();
 
 export const authSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getUsers: builder.query<EntityState<userInterface>, void>({
+    getUsers: builder.query<EntityState<userInterface | groupInterface>, void>({
       query: () => 'user/getallusers',
-      transformResponse: (res: userInterface[]) => {
+      transformResponse: (res: { users: userInterface[], groups: groupInterface[]; }) => {
         const state = store.getState() as RootState;
         const myInfo = state.user.user;
-        const users = res.map(user => {
+        const users = res.users.map(user => {
           if (myInfo?.archivedChats.includes(user._id)) { user.isArchived = true; } else { user.isArchived = false; }
           if (myInfo?.blockedUsers.includes(user._id)) { user.isBlocked = true; } else { user.isBlocked = false; }
           if (myInfo?.mutedUsers.includes(user._id)) { user.isMuted = true; } else { user.isMuted = false; }
           if (user.blockedUsers?.includes(myInfo?._id as string)) { user.blockedMe = true; } else { user.blockedMe = false; }
+          const random = Math.ceil(Math.random() * 10);
+          user.groupColor = `text-group${random}`;
           delete user.blockedUsers;
-          return { ...user, messages: [], unread: [], lastUpdated: Date.now() };
+          return { ...user, messages: [], unread: [], lastUpdated: Date.now(), isGroup: false };
         });
-        return usersAdapter.setAll(initialState, users);
+        const groups = res.groups.map(group => {
+          if (myInfo?.archivedChats.includes(group._id)) { group.isArchived = true; } else { group.isArchived = false; }
+          if (myInfo?.mutedUsers.includes(group._id)) { group.isMuted = true; } else { group.isMuted = false; }
+          return { ...group, messages: [], unread: [], lastUpdated: Date.now(), isGroup: true };
+        });
+        const final = [...users, ...groups];
+        return usersAdapter.setAll(initialState, final);
+      },
+      async onQueryStarted(arg, { dispatch, queryFulfilled, }) {
+        await queryFulfilled;
+        dispatch(startApp());
       },
       async onCacheEntryAdded(arg, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {

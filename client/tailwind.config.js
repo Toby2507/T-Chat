@@ -16,7 +16,17 @@ module.exports = {
         accentPurple: "#828BD4",
         mainGray: "#212224",
         secondaryGray: "#6A706E",
-        accentGray: "#383E3C"
+        accentGray: "#383E3C",
+        group1: "#E7749A",
+        group2: "#D5C6E0",
+        group3: "#EF8354",
+        group4: "#95D9DA",
+        group5: "#FFDF64",
+        group6: "#BFFFBC",
+        group7: "#E0C867",
+        group8: "#60B2E5",
+        group9: "#EAAC8B",
+        group10: "#EFABFF"
       },
       fontFamily: {
         poppins: ["Poppins", "sans-serif"]

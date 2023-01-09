@@ -1,3 +1,4 @@
+import { userInterface } from "../../utilities/interfaces";
 import { apiSlice } from "../api/apiSlice";
 import { setUserChatOptions, toggleProfile } from "../api/globalSlice";
 import { authSlice } from "../auth/authSlice";
@@ -27,7 +28,7 @@ export const settingsSlice = apiSlice.injectEndpoints({
                 user.isArchived = arg.set;
                 break;
               case "blockedUsers":
-                user.isBlocked = arg.set;
+                (user as userInterface).isBlocked = arg.set;
                 break;
               case "mutedUsers":
                 user.isMuted = arg.set;

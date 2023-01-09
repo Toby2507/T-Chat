@@ -50,7 +50,7 @@ const Signup = () => {
         e.preventDefault();
         try {
             const res = await signup({ userName, email, password }).unwrap();
-            dispatch(setCredentials(res));
+            dispatch(setCredentials({ ...res }));
             reset('info');
             navigate('/verify', { replace: true });
         } catch (err: any) {

@@ -8,14 +8,16 @@ interface singleMessageInterface {
   currId: EntityId;
   nextId: EntityId;
   chatId: EntityId;
+  isGroup: boolean;
 }
 
 
-const SingleMessage = ({ currId, prevId, nextId, chatId }: singleMessageInterface) => {
-  const selectMessageById = messageSelectors(chatId).selectById;
+const SingleMessage = ({ currId, prevId, nextId, chatId, isGroup }: singleMessageInterface) => {
+  const selectMessageById = messageSelectors(chatId, isGroup).selectById;
   const prevMsg = useAppSelector(state => selectMessageById(state, prevId));
   const currMsg = useAppSelector(state => selectMessageById(state, currId));
   const nextMsg = useAppSelector(state => selectMessageById(state, nextId));
+  console.log(currMsg);
   const sent = `self-end flex flex-col items-end bg-mainBlue w-[90%] max-w-max rounded-2xl px-4 py-2 ${nextMsg?.fromSelf === currMsg?.fromSelf ? '' : 'rounded-br-none'}`;
   const recieved = `self-start flex flex-col items-start bg-mainGray w-[90%] max-w-max rounded-2xl px-4 py-2 ${nextMsg?.fromSelf === currMsg?.fromSelf ? '' : 'rounded-bl-none'}`;
   return (

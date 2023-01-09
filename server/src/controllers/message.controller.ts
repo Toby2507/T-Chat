@@ -4,17 +4,27 @@ import { addMessageInput, clearChatInput, getMessagesInput, readUserMessagesInpu
 import { addMessage, deleteMessages, formatMessage, getChatMessages, readUserMessages } from '../services/message.service';
 
 export const addMessageHandler = async (req: Request<{}, {}, addMessageInput>, res: Response) => {
-  const { message, to } = req.body;
+  const { message, to, members } = req.body;
   const { _id: from } = res.locals.user;
   const msg = await addMessage(message, to, from);
   const newMsg = formatMessage(msg, from);
   const myOldMessages = await client.hGet(`user-${from}`, `messages-${to}`);
-  const yourOldMessages = await client.hGet(`user-${to}`, `messages-${from}`);
   if (myOldMessages) {
     const myParsedMessages = myOldMessages && JSON.parse(myOldMessages);
     myParsedMessages.push(newMsg);
     client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify(myParsedMessages));
-    if (yourOldMessages) {
+    if (members) {
+      let memberMessages = members.map(async member => await client.hGet(`user-${member}`, `messages-${to}`));
+      const finalMemberMessages = await Promise.all(memberMessages);
+      const memberParsedMessages = finalMemberMessages.map(msg => msg && JSON.parse(msg));
+      memberParsedMessages.forEach((msg, index) => {
+        if (msg) {
+          msg.push({ ...newMsg, fromSelf: false });
+          client.hSet(`user-${members[index]}`, `messages-${to}`, JSON.stringify(msg));
+        }
+      });
+    } else {
+      const yourOldMessages = await client.hGet(`user-${to}`, `messages-${from}`);
       const yourParsedMessages = yourOldMessages && JSON.parse(yourOldMessages);
       yourParsedMessages.push({ ...newMsg, fromSelf: false });
       client.hSet(`user-${to}`, `messages-${from}`, JSON.stringify(yourParsedMessages));
@@ -25,12 +35,13 @@ export const addMessageHandler = async (req: Request<{}, {}, addMessageInput>, r
   return res.status(201).json(newMsg);
 };
 
-export const getMessagesHandler = async (req: Request<getMessagesInput>, res: Response) => {
+export const getMessagesHandler = async (req: Request<getMessagesInput["params"], {}, getMessagesInput["body"]>, res: Response) => {
   const { to } = req.params;
+  const { isGroup } = req.body;
   const { _id: from } = res.locals.user;
   const cachedMessages = await client.hGet(`user-${from}`, `messages-${to}`);
   if (cachedMessages) return res.json(JSON.parse(cachedMessages));
-  const chatMessages = await getChatMessages(from, to);
+  const chatMessages = await getChatMessages(from, to, isGroup);
   const messages = chatMessages.map(msg => formatMessage(msg, from));
   client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify(messages));
   return res.json(messages);

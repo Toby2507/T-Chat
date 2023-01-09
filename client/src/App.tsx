@@ -1,7 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 import AuthMain from './components/AuthMain';
-import Layout from './components/Layout';
+import Layout from './components/layouts/Layout';
 import Onboard from './components/Onboard';
+import ChatLayout from './components/layouts/ChatLayout';
 import ForgotPassword from './features/auth/ForgotPassword';
 import Login from './features/auth/Login';
 import PersistLogin from './features/auth/PersistLogin';
@@ -10,8 +11,8 @@ import ResetPassword from './features/auth/ResetPassword';
 import SetProfilePicture from './features/auth/SetProfilePicture';
 import Signup from './features/auth/Signup';
 import VerifyUser from './features/auth/VerifyUser';
-import Chat from './features/chats/Chat';
-import ChatProfile from './features/chats/ChatProfile';
+import Lounge from './features/chats/Lounge';
+import CreateGroupChat from './features/chats/CreateGroupChat';
 
 const App = () => {
   return (
@@ -35,8 +36,10 @@ const App = () => {
         {/* GENERAL PROTECTED ROUTES */}
         <Route element={<PersistLogin />}>
           <Route element={<RequireAuth />}>
-            <Route path='chat' element={<Chat />} />
-            <Route path='profile' element={<ChatProfile />} />
+            <Route path='chat' element={<ChatLayout />}>
+              <Route index element={<Lounge />} />
+              <Route path='group' element={<CreateGroupChat />} />
+            </Route>
           </Route>
         </Route>
       </Route>

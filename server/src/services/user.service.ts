@@ -31,3 +31,7 @@ export const getAllUsers = (currentUserId: string) => {
 export const updateUsersGroupList = (userIds: string[], groupId: string) => {
     return UserModel.updateMany({ _id: { $in: userIds } }, { $addToSet: { groups: groupId } }, { multi: true });
 };
+
+export const getUserGroups = (userId: string) => {
+    return UserModel.findById(userId, { groups: 1, _id: 0 });
+};

@@ -10,8 +10,8 @@ import SingleLoungeUi from '../../components/SingleLoungeUi';
 import Submenu from '../../components/Submenu';
 import LoungeLoader from '../../components/loaders/LoungeLoader';
 import placeholderImage from '../../images/unknownUser.png';
-import { userInterface } from '../../utilities/interfaces';
-import { selectUser, startApp, toggleChatBox } from '../api/globalSlice';
+import { groupInterface, userInterface } from '../../utilities/interfaces';
+import { selectUser, toggleChatBox } from '../api/globalSlice';
 import { selectUserEntities, useGetUsersQuery } from '../auth/authSlice';
 
 const Lounge = () => {
@@ -19,36 +19,32 @@ const Lounge = () => {
     const { isLoading, isSuccess, isError, error } = useGetUsersQuery();
     const currentUser = useAppSelector(selectUser);
     const users = useAppSelector(selectUserEntities);
-    const [ids, setIds] = useState<EntityId[]>([]);
+    const [ids, setIds] = useState<(userInterface | groupInterface)[]>([]);
     const [showOptions, setShowOptions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedChat, setSelectedChat] = useState<number>();
     const [showArchived, setShowArchived] = useState<boolean>(false);
 
-    const changeCurrentChat = (index: number, userId: EntityId) => {
+    const changeCurrentChat = (index: number, id: EntityId, isGroup: boolean) => {
         setSelectedChat(index);
-        dispatch(toggleChatBox({ show: true, id: userId }));
+        dispatch(toggleChatBox({ show: true, chat: { id, isGroup } }));
     };
 
     useEffect(() => {
-        isSuccess && dispatch(startApp());
-    }, [isSuccess, dispatch]);
-    useEffect(() => {
-        const usersInfo = Object.values(users).map(user => user as userInterface);
-        const sortedUsers = usersInfo.sort((a, b) => (b?.lastUpdated as number) - (a?.lastUpdated as number));
-        setIds(sortedUsers.map(user => user._id));
+        const sortedUsers: (userInterface | groupInterface)[] = Object.values(users).map(user => user as userInterface).sort((a, b) => (b?.lastUpdated as number) - (a?.lastUpdated as number));
+        setIds(sortedUsers);
     }, [users]);
     useEffect(() => { isError && console.log(error); }, [error, isError]);
     useEffect(() => { currentUser?.archivedChats.length === 0 && setShowArchived(false); }, [currentUser?.archivedChats]);
     return (
         <>
-            <section className="w-full h-screen px-4 py-6 flex flex-col items-center space-y-4 border-r border-mainGray transition-all duration-300">
+            <section className="w-full h-screen px-4 py-6 flex flex-col items-center space-y-4 transition-all duration-300">
                 <div className="relative w-full flex items-center justify-between">
                     <figure className="w-12 h-12 rounded-full skeleton">
                         <img src={currentUser?.profilePicture ? currentUser.profilePicture : placeholderImage} alt={currentUser?.userName} className="w-full h-full object-cover rounded-full" />
                     </figure>
                     <button type="button" onClick={() => setShowOptions(!showOptions)} className="text-white text-3xl"><BiDotsVerticalRounded /></button>
-                    <Submenu setLoading={setLoading} isOpen={showOptions} />
+                    <Submenu setLoading={setLoading} isOpen={showOptions} type="main" />
                 </div>
                 <form className='w-full h-auto'>
                     {/* SEARCH BAR */}
@@ -77,12 +73,11 @@ const Lounge = () => {
                         )}
                         {/* CHAT INSTANCES */}
                         <div className="w-full flex flex-col gap-2 py-2 border-t-2 border-accentGray">
-                            {ids.filter(id => {
-                                const isArchived = currentUser?.archivedChats.includes(id as string);
-                                return showArchived ? (isArchived && id) : (!isArchived && id);
-                            }).map((id, index) => (
-                                <div key={id} className={selectedChat === index ? 'bg-mainGray/40' : ''} onClick={() => changeCurrentChat(index, id)}>
-                                    <SingleLoungeUi userId={id} />
+                            {ids.filter(user => {
+                                return showArchived ? (user?.isArchived && user) : (!user?.isArchived && user);
+                            }).map((user, index) => (
+                                <div key={user._id} className={selectedChat === index ? 'bg-mainGray/40' : ''} onClick={() => changeCurrentChat(index, user._id, user.isGroup)}>
+                                    <SingleLoungeUi user={user} />
                                 </div>
                             ))}
                         </div>

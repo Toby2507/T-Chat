@@ -12,7 +12,7 @@ const initialState = messagesAdapter.getInitialState();
 
 export const chatSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    sendMessage: builder.mutation<messageInterface, { message: string, to: string; }>({
+    sendMessage: builder.mutation<messageInterface, { message: string, to: string, members?: string[]; }>({
       query: body => ({
         url: 'message/addmsg',
         method: 'POST',
@@ -22,7 +22,6 @@ export const chatSlice = apiSlice.injectEndpoints({
         const result = await queryFulfilled;
         messagesAdapter.addOne(initialState, result.data);
         const from = (getState() as RootState).user.user?._id;
-        const socketData = { ...result.data, to: arg.to, from, fromSelf: false };
         dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
           const user = draft.entities[arg.to];
           if (user) {
@@ -33,11 +32,25 @@ export const chatSlice = apiSlice.injectEndpoints({
           }
         }));
         dispatch(apiSlice.util.invalidateTags([{ type: 'Messages' as const, id: arg.to }]));
-        dispatch(sendMsgThroughSocket(socketData));
+        if (arg.members) {
+          arg.members.forEach(member => {
+            if (member !== from) {
+              const socketData = { ...result.data, to: member, from: arg.to, fromSelf: false };
+              dispatch(sendMsgThroughSocket(socketData));
+            }
+          });
+        } else {
+          const socketData = { ...result.data, to: arg.to, from, fromSelf: false };
+          dispatch(sendMsgThroughSocket(socketData));
+        }
       }
     }),
-    getMessages: builder.query<EntityState<messageInterface>, EntityId>({
-      query: to => `message/getmsg/${to}`,
+    getMessages: builder.query<EntityState<messageInterface>, { to: EntityId, isGroup: boolean; }>({
+      query: ({ to, isGroup }) => ({
+        url: `message/getmsg/${to}`,
+        method: 'POST',
+        body: { isGroup }
+      }),
       transformResponse: (res: messageInterface[]) => {
         return messagesAdapter.upsertMany(initialState, res);
       },
@@ -53,7 +66,7 @@ export const chatSlice = apiSlice.injectEndpoints({
           }
         });
         dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
-          const user = draft.entities[arg];
+          const user = draft.entities[arg.to];
           if (user) {
             let newMessages = [...user.messages];
             messageIds.forEach(id => { !newMessages.includes(id) && newMessages.push(id); });
@@ -64,7 +77,7 @@ export const chatSlice = apiSlice.injectEndpoints({
           }
         }));
       },
-      providesTags: (result, error, arg) => result ? [{ type: 'Messages' as const, id: arg }, ...result.ids.map(id => ({ type: 'Messages' as const, id }))] : [{ type: 'Messages' as const, id: arg }]
+      providesTags: (result, error, arg) => result ? [{ type: 'Messages' as const, id: arg.to }, ...result.ids.map(id => ({ type: 'Messages' as const, id }))] : [{ type: 'Messages' as const, id: arg.to }]
     }),
     readMessages: builder.query<{}, { messages: EntityId[], chat: EntityId; }>({
       query: ({ messages, chat }) => ({
@@ -83,8 +96,8 @@ export const chatSlice = apiSlice.injectEndpoints({
   })
 });
 
-export const messageSelectors = (to: EntityId) => {
-  const messageResult = chatSlice.endpoints.getMessages.select(to);
+export const messageSelectors = (to: EntityId, isGroup: boolean) => {
+  const messageResult = chatSlice.endpoints.getMessages.select({ to, isGroup });
   const selectMessageData = createSelector(messageResult, result => result.data);
   const selector = messagesAdapter.getSelectors<RootState>(state => selectMessageData(state) ?? initialState);
   return { selectIds: selector.selectIds, selectAll: selector.selectAll, selectById: selector.selectById };

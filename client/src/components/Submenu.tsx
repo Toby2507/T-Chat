@@ -1,13 +1,16 @@
 import React from 'react';
 import LogoutButton from '../features/auth/LogoutButton';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 interface submenuInterface {
   isOpen: boolean;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  type: "main" | "chat" | "group";
+  options?: { name: string, opName?: string, prev?: boolean, action: () => void; }[];
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Submenu = ({ isOpen, setLoading }: submenuInterface) => {
+const Submenu = ({ isOpen, type, setLoading, options }: submenuInterface) => {
   const submenuVariants = {
     open: {
       display: 'block',
@@ -34,12 +37,21 @@ const Submenu = ({ isOpen, setLoading }: submenuInterface) => {
       initial={false}
       variants={submenuVariants}
       animate={isOpen ? 'open' : 'closed'}
-      className="absolute top-[95%] right-0 bg-mainGray z-50 rounded-md"
+      className={`${type === 'main' ? "bg-accentGray" : "bg-mainGray"} absolute top-[95%] right-0 shadow-2xl z-50 rounded-md`}
     >
       <div className='flex flex-col space-y-4 p-4'>
-        <button className='text-secondaryGray text-left text-sm capitalize'>new group</button>
-        <button className='text-secondaryGray text-left text-sm capitalize'>settings</button>
-        <LogoutButton buttonStyle='text-secondaryGray text-left text-sm capitalize' loading={setLoading} />
+        {type === 'main' && (
+          <>
+            <button className='text-white/80 text-left text-sm capitalize'><Link to='/chat/group'>new group</Link></button>
+            <button className='text-white/80 text-left text-sm capitalize'><Link to='/chat/settings'>settings</Link></button>
+            <LogoutButton buttonStyle='text-white/80 text-left text-sm capitalize' loading={setLoading} />
+          </>
+        )}
+        {type === 'chat' && (
+          options?.map((option, index) => (
+            <button key={index} className='text-white/80 text-left text-sm capitalize' onClick={option.action}>{option.prev ? option.opName : option.name}</button>
+          ))
+        )}
       </div>
     </motion.div>
   );

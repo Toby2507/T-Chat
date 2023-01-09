@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion';
+import { Outlet } from 'react-router-dom';
 import { useAppSelector } from '../../app/hooks';
-import { showChatBox, showProfile } from '../api/globalSlice';
-import ChatRoom from './ChatRoom';
-import Lounge from './Lounge';
-import ChatProfile from './ChatProfile';
+import { selectChat, showChatBox, showProfile } from '../../features/api/globalSlice';
+import ChatProfile from '../../features/chats/ChatProfile';
+import ChatRoom from '../../features/chats/ChatRoom';
+import GroupProfile from '../../features/chats/GroupProfile';
 
-const Chat = () => {
+const ChatLayout = () => {
   const showChatbox = useAppSelector(showChatBox);
   const showProfileBox = useAppSelector(showProfile);
+  const isGroup = useAppSelector(selectChat).isGroup;
   const mobileVariants = {
     Lounge: {
       x: 0,
@@ -54,7 +56,7 @@ const Chat = () => {
           transition={{ duration: 0.3 }}
           className="absolute top-0 left-0 flex items-center h-full w-full"
         >
-          <div className="shrink-0 grow-1 w-full h-full"><Lounge /></div>
+          <div className="shrink-0 grow-1 w-full h-full"><Outlet /></div>
           <div className="shrink-0 grow-1 w-full h-full"><ChatRoom /></div>
         </motion.div>
       </section>
@@ -66,12 +68,12 @@ const Chat = () => {
           transition={{ duration: 0.3 }}
           className="absolute top-0 left-0 flex items-center h-full w-full"
         >
-          <div className="shrink-0 grow-1 w-[60%] h-full"><Lounge /></div>
+          <div className="shrink-0 grow-1 w-[60%] h-full"><Outlet /></div>
           <div className="shrink-0 grow-1 w-full h-full"><ChatRoom /></div>
         </motion.div>
       </section>
       <section className="relative hidden lg:grid grid-cols-[30%_70%] place-items-center h-screen w-full overflow-hidden">
-        <Lounge />
+        <Outlet />
         <ChatRoom />
       </section>
       <motion.div
@@ -80,10 +82,10 @@ const Chat = () => {
         variants={variant}
         className="absolute top-0 right-0 bottom-0 w-full bg-black grid place-items-center z-50 lg:w-[30%]"
       >
-        <ChatProfile />
+        {isGroup ? <GroupProfile /> : <ChatProfile />}
       </motion.div>
     </div>
   );
 };
 
-export default Chat;
+export default ChatLayout;

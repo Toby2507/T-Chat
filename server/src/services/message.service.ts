@@ -5,12 +5,13 @@ export const addMessage = (message: string, to: string, from: string) => {
   return MessageModel.create({ message, users: [from, to], sender: from });
 };
 
-export const getChatMessages = (from: string, to: string) => {
+export const getChatMessages = (from: string, to: string, isGroup: boolean) => {
+  if (isGroup) return MessageModel.find({ users: to }).sort("updatedAt");
   return MessageModel.find({ users: { $all: [from, to] } }).sort("updatedAt");
 };
 
 export const readUserMessages = (messages: string[], user: string) => {
-  return MessageModel.updateMany({ _id: { $in: messages }, users: user }, { $addToSet: { readers: user }, $set: { read: true } }, { multi: true });
+  return MessageModel.updateMany({ _id: { $in: messages } }, { $addToSet: { readers: user }, $set: { read: true } }, { multi: true });
 };
 
 export const formatMessage = (msg: Message, from: string) => {
@@ -23,7 +24,8 @@ export const formatMessage = (msg: Message, from: string) => {
     time: dayjs(msg.createdAt).format('h:mma'),
     datetime: dayjs(msg.createdAt).valueOf(),
     read: msg.read,
-    readers: msg.readers
+    readers: msg.readers,
+    sender: msg.sender?.toString()
   };
 };
 

@@ -9,6 +9,7 @@ export interface messageInterface {
   datetime: number;
   read: boolean;
   readers: string[];
+  sender: string;
   to?: string;
   from?: string;
 }
@@ -23,10 +24,16 @@ export interface ClientToServerEvents {
   send_msg: (data: messageInterface) => void;
   disconnect: () => void;
 }
+
+export interface currentChatInterface {
+  id: EntityId | null;
+  isGroup: boolean;
+}
+
 export interface stateInterface {
   user: mainUserInterface | null;
   accessToken: string | null;
-  currentChat: EntityId | null;
+  currentChat: currentChatInterface;
   showChatBox: boolean;
   showProfile: boolean;
 }
@@ -37,6 +44,7 @@ export interface mainUserInterface {
   email: string;
   userName: string;
   verified: boolean;
+  isGroup: boolean;
   archivedChats: string[],
   mutedUsers: string[],
   blockedUsers: string[],
@@ -48,13 +56,30 @@ export interface userInterface {
   _id: string;
   email: string;
   userName: string;
-  verified: boolean;
+  groupColor: string;
   messages: EntityId[];
   unread: EntityId[];
   blockedUsers?: string[];
+  groups: string[];
   blockedMe: boolean;
   lastUpdated: number;
+  isGroup: boolean;
   isArchived: boolean;
   isMuted: boolean;
   isBlocked: boolean;
+}
+
+export interface groupInterface {
+  profilePicture: string | null;
+  _id: string;
+  userName: string;
+  description: string;
+  messages: EntityId[];
+  unread: EntityId[];
+  members: EntityId[];
+  admins: EntityId[];
+  lastUpdated: number;
+  isGroup: boolean;
+  isArchived: boolean;
+  isMuted: boolean;
 }
