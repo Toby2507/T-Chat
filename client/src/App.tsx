@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 import AuthMain from './components/AuthMain';
-import Layout from './components/layouts/Layout';
 import Onboard from './components/Onboard';
 import ChatLayout from './components/layouts/ChatLayout';
+import Layout from './components/layouts/Layout';
 import ForgotPassword from './features/auth/ForgotPassword';
 import Login from './features/auth/Login';
 import PersistLogin from './features/auth/PersistLogin';
@@ -11,8 +11,8 @@ import ResetPassword from './features/auth/ResetPassword';
 import SetProfilePicture from './features/auth/SetProfilePicture';
 import Signup from './features/auth/Signup';
 import VerifyUser from './features/auth/VerifyUser';
-import Lounge from './features/chats/Lounge';
 import CreateGroupChat from './features/chats/CreateGroupChat';
+import Lounge from './features/chats/Lounge';
 
 const App = () => {
   return (
@@ -39,6 +39,7 @@ const App = () => {
             <Route path='chat' element={<ChatLayout />}>
               <Route index element={<Lounge />} />
               <Route path='group' element={<CreateGroupChat />} />
+              <Route path='group/:userId' element={<CreateGroupChat />} />
             </Route>
           </Route>
         </Route>

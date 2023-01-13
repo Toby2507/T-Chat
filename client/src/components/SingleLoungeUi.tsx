@@ -1,20 +1,23 @@
 import { EntityId } from '@reduxjs/toolkit';
 import React from 'react';
 import { useAppSelector } from '../app/hooks';
+import { selectUserById } from '../features/auth/authSlice';
 import { messageSelectors } from '../features/chats/chatSlice';
-import placeholderImg from '../images/unknownUser.png';
 import placeholderImg2 from '../images/unknownGroup.png';
-import { groupInterface, userInterface } from '../utilities/interfaces';
+import placeholderImg from '../images/unknownUser.png';
+import { groupInterface, messageInterface, userInterface } from '../utilities/interfaces';
 
 interface uiInterface {
   user: userInterface | groupInterface;
 }
 
 const SingleLoungeUi = ({ user }: uiInterface) => {
-  const lastMsgId = user.messages[user.messages.length - 1];
+  const userMsgs = user.messages.filter(msg => !msg.isInformational).map(msg => msg.id);
+  const lastMsgId = userMsgs[(userMsgs.length - 1)];
   const selectMsgById = messageSelectors(user._id, user.isGroup).selectById;
-  const lastMsg = useAppSelector(state => selectMsgById(state, (lastMsgId as EntityId)));
-  const showMsg = `${lastMsg?.fromSelf ? 'You:' : `${user?.userName}:`} ${lastMsg?.message}`;
+  const lastMsg = useAppSelector(state => selectMsgById(state, (lastMsgId as EntityId))) as messageInterface;
+  const sender = useAppSelector(state => selectUserById(state, (lastMsg?.sender as EntityId))) as userInterface;
+  const showMsg = `${lastMsg?.fromSelf ? 'You:' : `${sender?.userName}:`} ${lastMsg?.message}`;
 
   return (
     <article className="relative flex items-center gap-3 pl-2 cursor-pointer">

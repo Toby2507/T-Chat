@@ -12,7 +12,7 @@ const initialState = messagesAdapter.getInitialState();
 
 export const chatSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    sendMessage: builder.mutation<messageInterface, { message: string, to: string, members?: string[]; }>({
+    sendMessage: builder.mutation<messageInterface, { message: string, to: string, members?: string[]; isInformational?: boolean; }>({
       query: body => ({
         url: 'message/addmsg',
         method: 'POST',
@@ -26,7 +26,7 @@ export const chatSlice = apiSlice.injectEndpoints({
           const user = draft.entities[arg.to];
           if (user) {
             const newMessages = [...user.messages];
-            newMessages.push(result.data.id);
+            newMessages.push({ id: result.data.id, isInformational: result.data.isInformational });
             user.messages = newMessages;
             user.lastUpdated = result.data.datetime;
           }
@@ -56,24 +56,25 @@ export const chatSlice = apiSlice.injectEndpoints({
       },
       async onQueryStarted(arg, { getState, dispatch, queryFulfilled }) {
         const result = await queryFulfilled;
-        const messageIds = [...result.data.ids];
         const messages = { ...result.data.entities };
         let unreadMsgs: EntityId[] = [];
         const me = (getState() as RootState).user.user?._id;
         Object.values(messages).forEach(msg => {
-          if (msg && !msg.fromSelf && !msg.read && !msg.readers.includes(me as string)) {
+          if (msg && !msg.fromSelf && !msg.read && !msg.isInformational && !msg.readers.includes(me as string)) {
             unreadMsgs.push(msg.id);
           }
         });
         dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
           const user = draft.entities[arg.to];
           if (user) {
+            const msgs = Object.values(messages).map(message => ({ id: message?.id as string, isInformational: message?.isInformational as boolean }));
             let newMessages = [...user.messages];
-            messageIds.forEach(id => { !newMessages.includes(id) && newMessages.push(id); });
+            const userMsgIds = newMessages.map(msg => msg.id);
+            msgs.forEach(msg => { !userMsgIds.includes(msg.id) && newMessages.push(msg); });
             user.messages = newMessages;
             unreadMsgs = unreadMsgs.filter(id => !user.unread.includes(id));
             user.unread = [...user.unread, ...unreadMsgs];
-            user.lastUpdated = Math.max(...newMessages.map(id => (messages[id]?.datetime as number)));
+            user.lastUpdated = Math.max(...newMessages.map(msg => (messages[msg.id]?.datetime as number)));
           }
         }));
       },

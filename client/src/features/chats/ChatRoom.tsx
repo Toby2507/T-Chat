@@ -7,7 +7,7 @@ const ChatRoom = () => {
   const currentChat = useAppSelector(selectChat);
   return (
     <>
-      {currentChat ? <ChatContainer /> : <ChatPlaceholder />}
+      {currentChat.id ? <ChatContainer /> : <ChatPlaceholder />}
     </>
   );
 };

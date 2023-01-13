@@ -10,19 +10,48 @@ export interface messageInterface {
   read: boolean;
   readers: string[];
   sender: string;
+  isInformational: boolean;
   to?: string;
   from?: string;
 }
+
+export interface groupInterface {
+  profilePicture: string | null;
+  _id: string;
+  userName: string;
+  description: string;
+  messages: { id: string, isInformational: boolean; }[];
+  unread: EntityId[];
+  members: EntityId[];
+  admins: EntityId[];
+  lastUpdated: number;
+  isGroup: boolean;
+  isArchived: boolean;
+  isMuted: boolean;
+  to?: string;
+  by?: string;
+}
+
 export interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
   receive_msg: (data: messageInterface) => void;
+  added_to_group: (data: groupInterface) => void;
+  removed_from_group: (data: { groupId: string, userId: string, to: string; }) => void;
+  deleted_group: (data: Partial<groupInterface>) => void;
+  editted_group: (data: Partial<groupInterface>) => void;
+  admin_initiated: (data: { groupId: string, userId: string, to: string; }) => void;
 }
+
 export interface ClientToServerEvents {
   add_user: (userId: string) => void;
   send_msg: (data: messageInterface) => void;
-  disconnect: () => void;
+  add_to_group: (data: groupInterface) => void;
+  remove_from_group: (data: { groupId: string, userId: string, to: string; }) => void;
+  delete_group: (data: Partial<groupInterface>) => void;
+  edit_group: (data: Partial<groupInterface>) => void;
+  admin_init: (data: { groupId: string, userId: string, to: string; }) => void;
 }
 
 export interface currentChatInterface {
@@ -57,7 +86,7 @@ export interface userInterface {
   email: string;
   userName: string;
   groupColor: string;
-  messages: EntityId[];
+  messages: { id: string, isInformational: boolean; }[];
   unread: EntityId[];
   blockedUsers?: string[];
   groups: string[];
@@ -67,19 +96,4 @@ export interface userInterface {
   isArchived: boolean;
   isMuted: boolean;
   isBlocked: boolean;
-}
-
-export interface groupInterface {
-  profilePicture: string | null;
-  _id: string;
-  userName: string;
-  description: string;
-  messages: EntityId[];
-  unread: EntityId[];
-  members: EntityId[];
-  admins: EntityId[];
-  lastUpdated: number;
-  isGroup: boolean;
-  isArchived: boolean;
-  isMuted: boolean;
 }

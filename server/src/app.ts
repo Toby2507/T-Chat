@@ -21,26 +21,55 @@ import connectDB from "./utils/connectDB";
 import log from "./utils/logger";
 
 export interface newMessage {
-    id: string;
-    fromSelf: boolean;
+    id: string,
+    fromSelf: boolean,
     message: string;
     date: string;
     time: string;
+    datetime: number;
     read: boolean;
     readers: string[];
+    sender: string;
+    isInformational: boolean;
     to?: string;
     from?: string;
+}
+export interface groupPacket {
+    profilePicture: string | null;
+    _id: string;
+    userName: string;
+    description: string;
+    messages: string[];
+    unread: string[];
+    members: string[];
+    admins: string[];
+    lastUpdated: number;
+    isGroup: boolean;
+    isArchived: boolean;
+    isMuted: boolean;
+    to?: string;
+    by?: string;
 }
 interface ServerToClientEvents {
     noArg: () => void;
     basicEmit: (a: number, b: string, c: Buffer) => void;
     withAck: (d: string, callback: (e: number) => void) => void;
     receive_msg: (data: newMessage) => void;
+    added_to_group: (data: groupPacket) => void;
+    removed_from_group: (data: { groupId: string, userId: string, to: string; }) => void;
+    deleted_group: (data: Partial<groupPacket>) => void;
+    editted_group: (data: Partial<groupPacket>) => void;
+    admin_initiated: (data: { groupId: string, userId: string, to: string; }) => void;
+
 }
 interface ClientToServerEvents {
     add_user: (userId: string) => void;
     send_msg: (data: newMessage) => void;
-    disconnect: () => void;
+    add_to_group: (data: groupPacket) => void;
+    remove_from_group: (data: { groupId: string, userId: string, to: string; }) => void;
+    delete_group: (data: Partial<groupPacket>) => void;
+    edit_group: (data: Partial<groupPacket>) => void;
+    admin_init: (data: { groupId: string, userId: string, to: string; }) => void;
 }
 interface InterServerEvents {
     ping: () => void;
@@ -83,7 +112,6 @@ app.use('/api/v1/groupchat', groupChatRoutes);
 app.use(errorHandlerMiddleware);
 
 global.onlineUsers = new Map<string, string>();
-let currentUserId = '';
 mongoose.connection.once('open', () => {
     log.info('Server Connected to DB');
     (async () => {
@@ -103,15 +131,41 @@ mongoose.connection.once('open', () => {
         socket.on('add_user', async userId => {
             global.currentUser = userId;
             onlineUsers.set(userId, socket.id);
-            currentUserId = userId;
-            log.info(`User ${currentUserId} added`);
         });
         socket.on('send_msg', async data => {
-            log.info('message recieved');
             const sendUserSocket = onlineUsers.get(data.to as string);
             if (sendUserSocket) {
                 socket.to(sendUserSocket).emit('receive_msg', data);
-                log.info(`message sent from ${currentUserId} to ${data.to}`);
+            }
+        });
+        socket.on('add_to_group', async data => {
+            const sendUserSocket = onlineUsers.get(data.to as string);
+            if (sendUserSocket) {
+                socket.to(sendUserSocket).emit('added_to_group', data);
+            }
+        });
+        socket.on('remove_from_group', async data => {
+            const sendUserSocket = onlineUsers.get(data.to as string);
+            if (sendUserSocket) {
+                socket.to(sendUserSocket).emit('removed_from_group', data);
+            }
+        });
+        socket.on('delete_group', async data => {
+            const sendUserSocket = onlineUsers.get(data.to as string);
+            if (sendUserSocket) {
+                socket.to(sendUserSocket).emit('deleted_group', data);
+            }
+        });
+        socket.on('edit_group', async data => {
+            const sendUserSocket = onlineUsers.get(data.to as string);
+            if (sendUserSocket) {
+                socket.to(sendUserSocket).emit('editted_group', data);
+            }
+        });
+        socket.on('admin_init', async data => {
+            const sendUserSocket = onlineUsers.get(data.to as string);
+            if (sendUserSocket) {
+                socket.to(sendUserSocket).emit('admin_initiated', data);
             }
         });
         socket.on('disconnect', () => {

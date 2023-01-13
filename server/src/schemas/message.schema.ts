@@ -4,7 +4,8 @@ export const addMessageSchema = object({
   body: object({
     message: string({ required_error: "Message is required" }),
     to: string({ required_error: "Please specify a To value" }),
-    members: string().array().optional()
+    members: string().array().optional(),
+    isInformational: boolean().optional()
   })
 });
 

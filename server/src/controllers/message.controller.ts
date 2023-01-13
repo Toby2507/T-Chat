@@ -4,9 +4,9 @@ import { addMessageInput, clearChatInput, getMessagesInput, readUserMessagesInpu
 import { addMessage, deleteMessages, formatMessage, getChatMessages, readUserMessages } from '../services/message.service';
 
 export const addMessageHandler = async (req: Request<{}, {}, addMessageInput>, res: Response) => {
-  const { message, to, members } = req.body;
+  const { message, to, members, isInformational } = req.body;
   const { _id: from } = res.locals.user;
-  const msg = await addMessage(message, to, from);
+  const msg = await addMessage(message, to, from, isInformational);
   const newMsg = formatMessage(msg, from);
   const myOldMessages = await client.hGet(`user-${from}`, `messages-${to}`);
   if (myOldMessages) {
@@ -25,9 +25,11 @@ export const addMessageHandler = async (req: Request<{}, {}, addMessageInput>, r
       });
     } else {
       const yourOldMessages = await client.hGet(`user-${to}`, `messages-${from}`);
-      const yourParsedMessages = yourOldMessages && JSON.parse(yourOldMessages);
-      yourParsedMessages.push({ ...newMsg, fromSelf: false });
-      client.hSet(`user-${to}`, `messages-${from}`, JSON.stringify(yourParsedMessages));
+      if (yourOldMessages) {
+        const yourParsedMessages = JSON.parse(yourOldMessages);
+        yourParsedMessages.push({ ...newMsg, fromSelf: false });
+        client.hSet(`user-${to}`, `messages-${from}`, JSON.stringify(yourParsedMessages));
+      }
     }
   } else {
     client.hSet(`user-${from}`, `messages-${to}`, JSON.stringify([newMsg]));

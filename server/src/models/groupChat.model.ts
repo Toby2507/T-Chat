@@ -5,7 +5,7 @@ import { Severity, getModelForClass, index, modelOptions, prop } from "@typegoos
   options: { allowMixed: Severity.ALLOW }
 })
 export class GroupChat {
-  @prop({ required: true, unique: true })
+  @prop({ required: true })
   userName: string;
 
   @prop({ default: "" })

@@ -1,7 +1,7 @@
-import React from 'react';
-import LogoutButton from '../features/auth/LogoutButton';
 import { motion } from 'framer-motion';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import LogoutButton from '../features/auth/LogoutButton';
 
 interface submenuInterface {
   isOpen: boolean;
@@ -42,8 +42,8 @@ const Submenu = ({ isOpen, type, setLoading, options }: submenuInterface) => {
       <div className='flex flex-col space-y-4 p-4'>
         {type === 'main' && (
           <>
-            <button className='text-white/80 text-left text-sm capitalize'><Link to='/chat/group'>new group</Link></button>
-            <button className='text-white/80 text-left text-sm capitalize'><Link to='/chat/settings'>settings</Link></button>
+            <button className='text-white/80 text-left text-sm capitalize'><Link to='group'>new group</Link></button>
+            <button className='text-white/80 text-left text-sm capitalize'><Link to='settings'>settings</Link></button>
             <LogoutButton buttonStyle='text-white/80 text-left text-sm capitalize' loading={setLoading} />
           </>
         )}

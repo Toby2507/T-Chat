@@ -32,6 +32,10 @@ export const updateUsersGroupList = (userIds: string[], groupId: string) => {
     return UserModel.updateMany({ _id: { $in: userIds } }, { $addToSet: { groups: groupId } }, { multi: true });
 };
 
+export const removeGroupFromGroupList = (userId: string, groupId: string) => {
+    return UserModel.updateOne({ _id: userId }, { $pull: { groups: groupId } });
+};
+
 export const getUserGroups = (userId: string) => {
     return UserModel.findById(userId, { groups: 1, _id: 0 });
 };

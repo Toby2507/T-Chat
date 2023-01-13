@@ -40,4 +40,5 @@ module.exports = {
     },
   },
   plugins: [],
+  safelist: [{ pattern: /text-.*/ }]
 };

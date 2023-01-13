@@ -1,13 +1,13 @@
 import dayjs from "dayjs";
 import MessageModel, { Message } from "../models/message.model";
 
-export const addMessage = (message: string, to: string, from: string) => {
-  return MessageModel.create({ message, users: [from, to], sender: from });
+export const addMessage = (message: string, to: string, from: string, isInformational?: boolean) => {
+  return MessageModel.create({ message, users: [from, to], sender: from, isInformational });
 };
 
 export const getChatMessages = (from: string, to: string, isGroup: boolean) => {
-  if (isGroup) return MessageModel.find({ users: to }).sort("updatedAt");
-  return MessageModel.find({ users: { $all: [from, to] } }).sort("updatedAt");
+  if (isGroup) return MessageModel.find({ users: to }).sort("createdAt");
+  return MessageModel.find({ users: { $all: [from, to] } }).sort("createdAt");
 };
 
 export const readUserMessages = (messages: string[], user: string) => {
@@ -25,7 +25,8 @@ export const formatMessage = (msg: Message, from: string) => {
     datetime: dayjs(msg.createdAt).valueOf(),
     read: msg.read,
     readers: msg.readers,
-    sender: msg.sender?.toString()
+    sender: msg.sender?.toString(),
+    isInformational: msg.isInformational
   };
 };
 

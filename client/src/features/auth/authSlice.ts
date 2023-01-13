@@ -2,7 +2,7 @@ import { EntityState, createEntityAdapter, createSelector } from '@reduxjs/toolk
 import { RootState, store } from '../../app/store';
 import { groupInterface, stateInterface, userInterface } from '../../utilities/interfaces';
 import { apiSlice } from '../api/apiSlice';
-import { clearCredentials, recieveMsgFromSocket, setCredentials, startApp } from '../api/globalSlice';
+import { addedToGroupFromSocket, clearCredentials, deletedGroupFromSocket, editedGroupInfoFromSocket, recieveMsgFromSocket, removedFromGroupFromSocket, setCredentials, startApp, toggleChatBox, toggleProfile } from '../api/globalSlice';
 
 export const usersAdapter = createEntityAdapter<userInterface | groupInterface>({
   selectId: user => user._id
@@ -22,26 +22,30 @@ export const authSlice = apiSlice.injectEndpoints({
           if (myInfo?.mutedUsers.includes(user._id)) { user.isMuted = true; } else { user.isMuted = false; }
           if (user.blockedUsers?.includes(myInfo?._id as string)) { user.blockedMe = true; } else { user.blockedMe = false; }
           const random = Math.ceil(Math.random() * 10);
-          user.groupColor = `text-group${random}`;
+          user.groupColor = `group${random}`;
           delete user.blockedUsers;
-          return { ...user, messages: [], unread: [], lastUpdated: Date.now(), isGroup: false };
+          return { ...user, messages: [], unread: [], lastUpdated: 0, isGroup: false };
         });
         const groups = res.groups.map(group => {
           if (myInfo?.archivedChats.includes(group._id)) { group.isArchived = true; } else { group.isArchived = false; }
           if (myInfo?.mutedUsers.includes(group._id)) { group.isMuted = true; } else { group.isMuted = false; }
-          return { ...group, messages: [], unread: [], lastUpdated: Date.now(), isGroup: true };
+          return { ...group, messages: [], unread: [], lastUpdated: 0, isGroup: true };
         });
         const final = [...users, ...groups];
         return usersAdapter.setAll(initialState, final);
       },
       async onQueryStarted(arg, { dispatch, queryFulfilled, }) {
         await queryFulfilled;
-        dispatch(startApp());
+        dispatch(startApp({ refetch: false }));
       },
       async onCacheEntryAdded(arg, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
           dispatch(recieveMsgFromSocket());
+          dispatch(addedToGroupFromSocket());
+          dispatch(removedFromGroupFromSocket());
+          dispatch(deletedGroupFromSocket());
+          dispatch(editedGroupInfoFromSocket());
           await cacheEntryRemoved;
         } catch (err) { console.log(err); }
       },
@@ -59,7 +63,11 @@ export const authSlice = apiSlice.injectEndpoints({
         url: '/auth/login',
         method: 'POST',
         body: { ...credentials }
-      })
+      }),
+      async onQueryStarted(arg, { dispatch }) {
+        dispatch(toggleProfile(false));
+        dispatch(toggleChatBox({ show: false, chat: { id: null, isGroup: false } }));
+      }
     }),
     setPP: builder.mutation({
       query: formData => ({

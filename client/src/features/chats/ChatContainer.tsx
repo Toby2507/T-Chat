@@ -6,24 +6,28 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import AddChat from '../../components/AddChat';
 import Loader from '../../components/Loader';
 import Submenu from '../../components/Submenu';
+import placeholderImg2 from '../../images/unknownGroup.png';
 import placeholderImg from '../../images/unknownUser.png';
 import { groupInterface, userInterface } from '../../utilities/interfaces';
 import { selectChat, toggleChatBox, toggleProfile } from '../api/globalSlice';
 import { selectUserById } from '../auth/authSlice';
 import { useClearChatMutation, useSetChatInfoMutation } from '../settings/chatSettingSlice';
+import SingleGroupChatMessage from './SingleGroupChatMessage';
 import SingleMessage from './SingleMessage';
 import { useReadMessagesQuery, useSendMessageMutation } from './chatSlice';
-import SingleGroupChatMessage from './SingleGroupChatMessage';
+import { useLeaveGroupChatMutation } from './groupChatSlice';
 
 const ChatContainer = () => {
   const dispatch = useAppDispatch();
   const [sendMessage, { isLoading }] = useSendMessageMutation();
   const [setChatInfo] = useSetChatInfoMutation();
   const [clearChat] = useClearChatMutation();
+  const [leaveGroup] = useLeaveGroupChatMutation();
   const currentChat = useAppSelector(selectChat);
   const chat = useAppSelector(state => selectUserById(state, currentChat.id as EntityId));
   const scrollRef = useRef<HTMLDivElement>(null);
-  const messageIds = useMemo(() => chat?.messages ?? [], [chat]);
+  const messages = useMemo(() => chat?.messages ?? [], [chat]);
+  const messageIds = messages.map(msg => msg.id);
   const [showOptions, setShowOptions] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const unreadMessages = chat?.unread as EntityId[];
@@ -37,10 +41,11 @@ const ChatContainer = () => {
   const blockUser = () => { setChatInfo({ control: "blockedUsers", set: !(chat as userInterface)?.isBlocked as boolean, userId: currentChat.id as string }); setShowOptions(false); };
   const muteChat = () => { setChatInfo({ control: "mutedUsers", set: !chat?.isMuted as boolean, userId: currentChat.id as string }); setShowOptions(false); };
   const archiveChat = () => { setChatInfo({ control: "archivedChats", set: !chat?.isArchived as boolean, userId: currentChat.id as string }); setShowOptions(false); };
-  const clearChatHistory = () => { clearChat({ messageIds: (chat?.messages as string[]), to: currentChat.id as string }); setShowOptions(false); };
+  const clearChatHistory = () => { clearChat({ messageIds: messageIds, to: currentChat.id as string }); setShowOptions(false); };
+  const exitGroup = async () => { await leaveGroup(currentChat?.id as EntityId); };
   const addChatProps = { handleSendMessage, isLoading, isBlocked: (chat as userInterface)?.isBlocked as boolean, userId: currentChat.id as string };
   // SUBMENU PROPS
-  const options = [
+  const userOptions = [
     { name: "Contact Info", action: () => { dispatch(toggleProfile(true)); setShowOptions(false); } },
     { name: "Mute Notifications", opName: "Unmute Notifications", prev: chat?.isMuted, action: muteChat },
     { name: "Archive Chat", opName: "Unarchive Chat", prev: chat?.isArchived, action: archiveChat },
@@ -48,30 +53,37 @@ const ChatContainer = () => {
     { name: "Block User", opName: "Unblock User", prev: (chat as userInterface)?.isBlocked, action: blockUser },
     { name: "Close Chat", action: () => { dispatch(toggleChatBox({ show: false, chat: { id: null, isGroup: false } })); setShowOptions(false); } },
   ];
+  const groupOptions = [
+    { name: "Group Info", action: () => { dispatch(toggleProfile(true)); setShowOptions(false); } },
+    { name: "Mute Notifications", opName: "Unmute Notifications", prev: chat?.isMuted, action: muteChat },
+    { name: "Archive Group", opName: "Unarchive Chat", prev: chat?.isArchived, action: archiveChat },
+    { name: "Leave Group", action: exitGroup },
+    { name: "Close Chat", action: () => { dispatch(toggleChatBox({ show: false, chat: { id: null, isGroup: false } })); setShowOptions(false); } },
+  ];
 
-  useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messageIds]);
+  useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
   return (
     <>
       <section className="w-full h-screen border-l border-mainGray grid grid-rows-[auto_1fr_auto]">
         <div className="relative px-4 py-2 flex gap-2 items-center bg-mainGray">
           <button className="lg:hidden" onClick={() => dispatch(toggleChatBox({ show: false, chat: { id: null, isGroup: false } }))}><IoIosArrowBack className='text-lg text-white' /></button>
           <figure className="w-14 h-14 rounded-full">
-            <img src={chat?.profilePicture ? chat.profilePicture : placeholderImg} alt={chat?.userName} className="w-full h-full object-cover rounded-full" />
+            <img src={chat?.profilePicture ? chat.profilePicture : chat?.isGroup ? placeholderImg2 : placeholderImg} alt={chat?.userName} className="w-full h-full object-cover rounded-full" />
           </figure>
           <div className="flex-1 flex flex-col items-start justify-center" onClick={() => dispatch(toggleProfile(true))}>
             <h1 className="text-white text-base capitalize font-medium">{chat?.userName}</h1>
             <span className="text-secondaryGray text-xs">Active</span>
           </div>
           <button onClick={() => setShowOptions(!showOptions)} className="hidden text-white text-3xl lg:block"><BiDotsVerticalRounded /></button>
-          <Submenu setLoading={setLoading} type="chat" isOpen={showOptions} options={options} />
+          <Submenu setLoading={setLoading} type="chat" isOpen={showOptions} options={chat?.isGroup ? groupOptions : userOptions} />
         </div>
         <div className="w-full h-full p-4 flex flex-col justify-start space-y-3 overflow-y-scroll">
-          {messageIds.map((id, i) => (
-            <div ref={scrollRef} key={id} className="w-full flex flex-col justify-start space-y-3">
+          {messages.map((msg, i) => (
+            <div ref={scrollRef} key={msg.id} className="w-full flex flex-col justify-start space-y-3">
               {currentChat.isGroup ? (
-                <SingleGroupChatMessage currId={id} prevId={messageIds[i - 1]} nextId={messageIds[i + 1]} chatId={currentChat.id as EntityId} isGroup={currentChat.isGroup} />
+                <SingleGroupChatMessage currId={msg} prevId={messages[i - 1]} nextId={messages[i + 1]} chatId={currentChat.id as EntityId} isGroup={currentChat.isGroup} />
               ) : (
-                <SingleMessage currId={id} prevId={messageIds[i - 1]} nextId={messageIds[i + 1]} chatId={currentChat.id as EntityId} isGroup={currentChat.isGroup} />
+                <SingleMessage currId={msg} prevId={messages[i - 1]} nextId={messages[i + 1]} chatId={currentChat.id as EntityId} isGroup={currentChat.isGroup} />
               )}
             </div>
           ))}

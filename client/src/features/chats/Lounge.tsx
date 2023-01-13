@@ -31,22 +31,22 @@ const Lounge = () => {
     };
 
     useEffect(() => {
-        const sortedUsers: (userInterface | groupInterface)[] = Object.values(users).map(user => user as userInterface).sort((a, b) => (b?.lastUpdated as number) - (a?.lastUpdated as number));
+        const sortedUsers: (userInterface | groupInterface)[] = Object.values(users).map(user => user as userInterface | groupInterface).sort((a, b) => (b?.lastUpdated as number) - (a?.lastUpdated as number));
         setIds(sortedUsers);
     }, [users]);
     useEffect(() => { isError && console.log(error); }, [error, isError]);
     useEffect(() => { currentUser?.archivedChats.length === 0 && setShowArchived(false); }, [currentUser?.archivedChats]);
     return (
         <>
-            <section className="w-full h-screen px-4 py-6 flex flex-col items-center space-y-4 transition-all duration-300">
-                <div className="relative w-full flex items-center justify-between">
+            <section className="w-full h-screen px-2 py-6 flex flex-col items-center space-y-4 transition-all duration-300">
+                <div className="relative w-full flex items-center justify-between px-2">
                     <figure className="w-12 h-12 rounded-full skeleton">
                         <img src={currentUser?.profilePicture ? currentUser.profilePicture : placeholderImage} alt={currentUser?.userName} className="w-full h-full object-cover rounded-full" />
                     </figure>
                     <button type="button" onClick={() => setShowOptions(!showOptions)} className="text-white text-3xl"><BiDotsVerticalRounded /></button>
                     <Submenu setLoading={setLoading} isOpen={showOptions} type="main" />
                 </div>
-                <form className='w-full h-auto'>
+                <form className='w-full h-auto px-2'>
                     {/* SEARCH BAR */}
                     <div className="relative w-full h-10">
                         <input
@@ -58,7 +58,7 @@ const Lounge = () => {
                     </div>
                 </form>
                 {isLoading && !isSuccess ? <LoungeLoader /> : (
-                    <div className="w-full flex flex-col items-center gap-2 overflow-y-auto">
+                    <div className="w-full flex flex-col items-center gap-2 px-2 overflow-y-auto">
                         {/* SHOW ARCHIVE FUNCTIONALITY */}
                         {currentUser?.archivedChats.length !== 0 && (
                             <div className="w-full flex items-center gap-6 px-2">

@@ -23,6 +23,9 @@ export class Message {
   @prop({ default: [] })
   readers: string[];
 
+  @prop({ default: false })
+  isInformational: boolean;
+
   createdAt: Date;
   updatedAt: Date;
   _id: ObjectId;
