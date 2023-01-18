@@ -1,9 +1,16 @@
 import { EntityId, PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-import { currentChatInterface, groupInterface, messageInterface, stateInterface } from "../../utilities/interfaces";
+import { currentChatInterface, groupInterface, mainUserInterface, messageInterface, stateInterface, userInterface } from "../../utilities/interfaces";
 import { setInterface } from "../settings/chatSettingSlice";
 
-const initialState: stateInterface = { user: null, accessToken: null, currentChat: { id: null, isGroup: false }, showChatBox: false, showProfile: false };
+const initialState: stateInterface = {
+  user: null,
+  accessToken: null,
+  currentChat: { id: null, isGroup: false },
+  showChatBox: false,
+  showProfile: false,
+  onlineUsers: []
+};
 
 const userSlice = createSlice({
   name: 'user',
@@ -18,6 +25,18 @@ const userSlice = createSlice({
     },
     toggleProfile: (state, action: PayloadAction<boolean>) => {
       state.showProfile = action.payload;
+    },
+    updateOnlineUsers: (state, action: PayloadAction<string[]>) => {
+      state.onlineUsers = action.payload;
+    },
+    updateUserDetails: (state, action: PayloadAction<Partial<mainUserInterface>>) => {
+      state.user = { ...state.user as mainUserInterface, ...action.payload };
+    },
+    deleteUserAccount: (state, action: PayloadAction<string>) => {
+      const archived = state.user?.archivedChats.filter(id => id !== action.payload) as string[];
+      const muted = state.user?.mutedUsers.filter(id => id !== action.payload) as string[];
+      const blocked = state.user?.blockedUsers.filter(id => id !== action.payload) as string[];
+      state.user = { ...state.user as mainUserInterface, archivedChats: archived, mutedUsers: muted, blockedUsers: blocked };
     },
     setUserChatOptions: (state, action: PayloadAction<setInterface>) => {
       const { control, set, userId } = action.payload;
@@ -55,17 +74,26 @@ const userSlice = createSlice({
       state.currentChat = { id: null, isGroup: false };
       state.showChatBox = false;
     },
+    startApp: (state, action: PayloadAction<{ refetch: boolean; }>) => { },
     sendMsgThroughSocket: (state, action: PayloadAction<messageInterface>) => { },
     addToGroupThroughSocket: (state, action: PayloadAction<groupInterface>) => { },
     removeFromGroupThroughSocket: (state, action: PayloadAction<{ groupId: string, userId: string, to: string; }>) => { },
     deleteGroupThroughSocket: (state, action: PayloadAction<Partial<groupInterface>>) => { },
     editGroupInfoThroughSocket: (state, action: PayloadAction<Partial<groupInterface>>) => { },
+    editUserInfoThroughSocket: (state, action: PayloadAction<Partial<groupInterface>>) => { },
+    blockUserThroughSocket: (state, action: PayloadAction<{ userId: string, block: boolean; }>) => { },
+    deleteAccountThroughSocket: (state, action: PayloadAction<string>) => { },
+    createNewUserThroughSocket: (state, action: PayloadAction<userInterface>) => { },
+    newUserCreatedFromSocket: (state) => { },
+    updateOnlineUsersFromSocket: (state) => { },
     recieveMsgFromSocket: (state) => { },
     addedToGroupFromSocket: (state) => { },
     removedFromGroupFromSocket: (state) => { },
     deletedGroupFromSocket: (state) => { },
     editedGroupInfoFromSocket: (state) => { },
-    startApp: (state, action: PayloadAction<{ refetch: boolean; }>) => { },
+    editedUserInfoFromSocket: (state) => { },
+    userBlockedMeFromSocket: (state) => { },
+    accountDeletedFromSocket: (state) => { },
   }
 });
 
@@ -73,18 +101,30 @@ export const {
   setCredentials,
   clearCredentials,
   setCurrentChat,
+  updateUserDetails,
   toggleChatBox,
   toggleProfile,
+  deleteUserAccount,
+  updateOnlineUsers,
   sendMsgThroughSocket,
+  editUserInfoThroughSocket,
   addToGroupThroughSocket,
   removeFromGroupThroughSocket,
   deleteGroupThroughSocket,
   editGroupInfoThroughSocket,
+  blockUserThroughSocket,
+  deleteAccountThroughSocket,
+  createNewUserThroughSocket,
+  newUserCreatedFromSocket,
+  editedUserInfoFromSocket,
+  updateOnlineUsersFromSocket,
   recieveMsgFromSocket,
   addedToGroupFromSocket,
   removedFromGroupFromSocket,
   deletedGroupFromSocket,
   editedGroupInfoFromSocket,
+  userBlockedMeFromSocket,
+  accountDeletedFromSocket,
   startApp,
   setUserChatOptions,
   addNewGroup,
@@ -92,6 +132,7 @@ export const {
 } = userSlice.actions;
 export const selectUser = (state: RootState) => state.user.user;
 export const selectChat = (state: RootState) => state.user.currentChat;
+export const selectOnlineUsers = (state: RootState) => state.user.onlineUsers;
 export const showChatBox = (state: RootState) => state.user.showChatBox;
 export const showProfile = (state: RootState) => state.user.showProfile;
 export default userSlice.reducer;

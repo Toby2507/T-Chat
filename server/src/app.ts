@@ -50,19 +50,42 @@ export interface groupPacket {
     to?: string;
     by?: string;
 }
+export interface userPacket {
+    profilePicture: string | null;
+    _id: string;
+    email: string;
+    userName: string;
+    groupColor: string;
+    messages: { id: string, isInformational: boolean; }[];
+    unread: string[];
+    blockedUsers?: string[];
+    groups: string[];
+    blockedMe: boolean;
+    lastUpdated: number;
+    isGroup: boolean;
+    isArchived: boolean;
+    isMuted: boolean;
+    isBlocked: boolean;
+}
 interface ServerToClientEvents {
     noArg: () => void;
     basicEmit: (a: number, b: string, c: Buffer) => void;
     withAck: (d: string, callback: (e: number) => void) => void;
+    new_user_created: (data: userPacket) => void;
+    editted_user: (data: Partial<userPacket>) => void;
     receive_msg: (data: newMessage) => void;
     added_to_group: (data: groupPacket) => void;
     removed_from_group: (data: { groupId: string, userId: string, to: string; }) => void;
     deleted_group: (data: Partial<groupPacket>) => void;
     editted_group: (data: Partial<groupPacket>) => void;
     admin_initiated: (data: { groupId: string, userId: string, to: string; }) => void;
-
+    blocked_me: (data: { userId: string, block: boolean; }) => void;
+    online_users: (onlineUsers: string[]) => void;
+    deleted_account: (userId: string) => void;
 }
 interface ClientToServerEvents {
+    create_new_user: (data: userPacket) => void;
+    edit_user: (data: Partial<userPacket>) => void;
     add_user: (userId: string) => void;
     send_msg: (data: newMessage) => void;
     add_to_group: (data: groupPacket) => void;
@@ -70,6 +93,8 @@ interface ClientToServerEvents {
     delete_group: (data: Partial<groupPacket>) => void;
     edit_group: (data: Partial<groupPacket>) => void;
     admin_init: (data: { groupId: string, userId: string, to: string; }) => void;
+    block_user: (data: { userId: string, block: boolean; }) => void;
+    delete_account: (userId: string) => void;
 }
 interface InterServerEvents {
     ping: () => void;
@@ -113,10 +138,8 @@ app.use(errorHandlerMiddleware);
 
 global.onlineUsers = new Map<string, string>();
 mongoose.connection.once('open', () => {
-    log.info('Server Connected to DB');
     (async () => {
         await client.connect();
-        log.info('Connected to redis');
     })();
     const server = app.listen(port, () => log.info(`Server Listening on Port ${port}...`));
     const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(server, {
@@ -126,11 +149,15 @@ mongoose.connection.once('open', () => {
         }
     });
     io.on('connection', socket => {
-        log.info("New client connected");
         global.chatSocket = socket;
+        socket.on('create_new_user', async data => {
+            socket.broadcast.emit('new_user_created', data);
+        });
         socket.on('add_user', async userId => {
             global.currentUser = userId;
             onlineUsers.set(userId, socket.id);
+            socket.broadcast.emit('online_users', [...onlineUsers.keys()]);
+            io.to(socket.id).emit('online_users', [...onlineUsers.keys()]);
         });
         socket.on('send_msg', async data => {
             const sendUserSocket = onlineUsers.get(data.to as string);
@@ -145,7 +172,7 @@ mongoose.connection.once('open', () => {
             }
         });
         socket.on('remove_from_group', async data => {
-            const sendUserSocket = onlineUsers.get(data.to as string);
+            const sendUserSocket = onlineUsers.get(data.to);
             if (sendUserSocket) {
                 socket.to(sendUserSocket).emit('removed_from_group', data);
             }
@@ -162,18 +189,28 @@ mongoose.connection.once('open', () => {
                 socket.to(sendUserSocket).emit('editted_group', data);
             }
         });
+        socket.on('edit_user', async data => {
+            socket.broadcast.emit('editted_user', data);
+        });
         socket.on('admin_init', async data => {
             const sendUserSocket = onlineUsers.get(data.to as string);
             if (sendUserSocket) {
                 socket.to(sendUserSocket).emit('admin_initiated', data);
             }
         });
+        socket.on('block_user', async data => {
+            const sendUserSocket = onlineUsers.get(data.userId);
+            if (sendUserSocket) { socket.to(sendUserSocket).emit('blocked_me', data); }
+        });
+        socket.on('delete_account', async userId => {
+            socket.broadcast.emit('deleted_account', userId);
+        });
         socket.on('disconnect', () => {
             onlineUsers.forEach((value, key) => {
                 if (value === socket.id) {
                     onlineUsers.delete(key);
                     client.del(`user-${key}`);
-                    log.info(`User ${key} disconnected`);
+                    socket.broadcast.emit('online_users', [...onlineUsers.keys()]);
                 }
             });
         });

@@ -121,13 +121,12 @@ export const groupChatSlice = apiSlice.injectEndpoints({
         }));
       }
     }),
-    leaveGroupChat: builder.mutation<unknown, EntityId>({
+    removeProfilePicture: builder.mutation<unknown, EntityId>({
       query: groupId => ({
-        url: `groupchat/leave/${groupId}`,
-        method: "PATCH"
+        url: `groupchat/removeprofilepicture/${groupId}`,
+        method: 'PATCH'
       }),
       async onQueryStarted(arg, { getState, dispatch, queryFulfilled }) {
-        await queryFulfilled;
         await queryFulfilled;
         const state = getState() as RootState;
         const myId = state.user.user?._id;
@@ -135,7 +134,34 @@ export const groupChatSlice = apiSlice.injectEndpoints({
         if (group) {
           group.members.forEach(member => {
             if (member !== myId) {
+              dispatch(editGroupInfoThroughSocket({ to: member as string, _id: arg as string, profilePicture: null }));
+            }
+          });
+        }
+        dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
+          const group = draft.entities[arg] as groupInterface;
+          if (group) {
+            group.profilePicture = null;
+            usersAdapter.updateOne(draft, { id: arg, changes: group });
+          }
+        }));
+      }
+    }),
+    leaveGroupChat: builder.mutation<{ admins: string[]; }, EntityId>({
+      query: groupId => ({
+        url: `groupchat/leave/${groupId}`,
+        method: "PATCH"
+      }),
+      async onQueryStarted(arg, { getState, dispatch, queryFulfilled }) {
+        const result = await queryFulfilled;
+        const state = getState() as RootState;
+        const myId = state.user.user?._id;
+        const group = authSlice.endpoints.getUsers.select()(state).data?.entities[arg] as groupInterface;
+        if (group) {
+          group.members.forEach(member => {
+            if (member !== myId) {
               dispatch(removeFromGroupThroughSocket({ to: member as string, groupId: arg as string, userId: myId as string }));
+              dispatch(editGroupInfoThroughSocket({ to: member as string, _id: arg as string, admins: result.data.admins }));
             }
           });
           dispatch(chatSlice.endpoints.sendMessage.initiate({ message: `${myId} Left`, to: group._id, members: group.members as string[], isInformational: true }));
@@ -245,6 +271,7 @@ export const {
   useDeleteGroupChatMutation,
   useEditGroupInfoMutation,
   useSetProfilePictureMutation,
+  useRemoveProfilePictureMutation,
   useAddGroupMemberMutation,
   useGroupAdminHandlerMutation
 } = groupChatSlice;

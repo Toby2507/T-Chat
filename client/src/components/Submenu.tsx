@@ -43,7 +43,7 @@ const Submenu = ({ isOpen, type, setLoading, options }: submenuInterface) => {
         {type === 'main' && (
           <>
             <button className='text-white/80 text-left text-sm capitalize'><Link to='group'>new group</Link></button>
-            <button className='text-white/80 text-left text-sm capitalize'><Link to='settings'>settings</Link></button>
+            <button className='text-white/80 text-left text-sm capitalize'><Link to='settings'>profile</Link></button>
             <LogoutButton buttonStyle='text-white/80 text-left text-sm capitalize' loading={setLoading} />
           </>
         )}

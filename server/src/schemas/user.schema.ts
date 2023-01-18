@@ -28,7 +28,14 @@ export const resendPasswordResetEmailSchema = object({
     })
 });
 
+export const updateUserInfoSchema = object({
+    body: object({
+        userName: string({ required_error: "Username is required" }).min(3, "Username requires atleast 3 chars"),
+    })
+});
+
 export type verifyUserInput = TypeOf<typeof verifyUserSchema>["params"];
 export type forgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 export type resetPasswordInput = TypeOf<typeof resetPasswordSchema>;
 export type resendPasswordResetEmailInput = TypeOf<typeof resendPasswordResetEmailSchema>["body"];
+export type updateUserInfoInput = TypeOf<typeof updateUserInfoSchema>["body"];

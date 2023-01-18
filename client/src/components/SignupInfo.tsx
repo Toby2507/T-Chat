@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import { AiOutlineMail, AiOutlineUser } from 'react-icons/ai'
-import { FaCheck, FaInfoCircle, FaTimes } from 'react-icons/fa'
+import { useEffect, useState } from 'react';
+import { AiOutlineMail, AiOutlineUser } from 'react-icons/ai';
+import { FaCheck, FaInfoCircle, FaTimes } from 'react-icons/fa';
 
-const offscreen = 'absolute -left-[9999px]'
-const instructions = 'relative flex items-start gap-2 bg-mainGray rounded-xl p-2 pl-7'
-const instructionsText = 'tracking-tight leading-tight text-base text-white'
+const offscreen = 'absolute -left-[9999px]';
+const instructions = 'relative flex items-start gap-2 bg-mainGray rounded-xl p-2 pl-7';
+const instructionsText = 'tracking-tight leading-tight text-base text-white';
 
 interface SignupInfoInterface {
   email: string,
@@ -13,12 +13,13 @@ interface SignupInfoInterface {
   setUserName: React.Dispatch<React.SetStateAction<string>>,
   emailValid: boolean,
   userNameValid: boolean,
-  userRef: React.RefObject<HTMLInputElement>
+  userRef: React.RefObject<HTMLInputElement>;
 }
 const SignupInfo = ({ email, userName, setEmail, setUserName, emailValid, userNameValid, userRef }: SignupInfoInterface) => {
   const [userNameFocused, setUserNameFocused] = useState<boolean>(false);
   const [emailFocused, setEmailFocused] = useState<boolean>(false);
 
+  useEffect(() => { userRef.current?.focus(); }, [userRef]);
   return (
     <div className='w-full flex flex-col space-y-4'>
       <div className="w-full flex flex-col space-y-2 items-start">
@@ -79,7 +80,7 @@ const SignupInfo = ({ email, userName, setEmail, setUserName, emailValid, userNa
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignupInfo
+export default SignupInfo;

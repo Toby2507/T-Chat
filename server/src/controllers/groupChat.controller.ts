@@ -56,12 +56,21 @@ export const setGroupProfilePictureHandler = async (req: Request, res: Response)
   return res.status(200).json({ profilePicture });
 };
 
+export const removeGroupProfilePictureHandler = async (req: Request, res: Response) => {
+  const { _id: by } = res.locals.user;
+  const { groupId } = req.params;
+  const isUpdated = await setGroupProfilePicture(groupId, null, by);
+  if (isUpdated.modifiedCount === 0) return res.status(403).json({ message: 'You are not an admin of this group' });
+  return res.sendStatus(204);
+};
+
 export const leaveGroupChatHandler = async (req: Request, res: Response) => {
   const { groupId } = req.params;
   const { _id: userId } = res.locals.user;
-  await leaveGroupChat(groupId, userId);
+  const updatedAdmin = await leaveGroupChat(groupId, userId);
+  if (!updatedAdmin) return res.status(403).json({ message: 'You are not a member of this group' });
   await removeGroupFromGroupList(userId, groupId);
-  res.sendStatus(204);
+  res.status(200).json({ admins: updatedAdmin.admins });
 };
 
 export const removeGroupMemberHandler = async (req: Request<{}, {}, removeGroupMemberInput>, res: Response) => {

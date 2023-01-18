@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { useAppSelector } from '../../app/hooks';
 import Loader from '../../components/Loader';
 import { useSignupMutation } from './authSlice';
 // Components
 import SignupInfo from '../../components/SignupInfo';
 import SignupPwd from '../../components/SignupPwd';
-import { selectUser, setCredentials } from '../api/globalSlice';
+import { selectUser } from '../api/globalSlice';
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const EMAIL_REGEX = /^[\w.+-]{3,}@[\w-]+\.[\w-]+$/;
@@ -17,7 +17,6 @@ const offscreen = 'absolute -left-[9999px]';
 const onscreen = 'w-full bg-red-200 text-red-500 text-center rounded-md font-bold px-4 py-1 mb-2';
 
 const Signup = () => {
-    const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const currentUser = useAppSelector(selectUser);
     const userRef = useRef<HTMLInputElement>(null);
@@ -43,14 +42,18 @@ const Signup = () => {
             setUserName(''); setUserNameValid(false);
             setPassword(''); setPasswordValid(false);
             setEmail(''); setEmailValid(false);
+            setMatchPwd(''); setMatchPwdValid(false);
         }
-        if (type === 'all' || type === 'ui') { setInfoTaken(false); }
+        if (type === 'all' || type === 'ui') {
+            setInfoTaken(false);
+            setMatchPwd(''); setMatchPwdValid(false);
+        }
     };
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!infoTaken) { setInfoTaken(true); return; }
         try {
-            const res = await signup({ userName, email, password }).unwrap();
-            dispatch(setCredentials({ ...res }));
+            await signup({ userName, email, password }).unwrap();
             reset('info');
             navigate('/verify', { replace: true });
         } catch (err: any) {
@@ -60,7 +63,7 @@ const Signup = () => {
                 setErrMsg('Incomplete Credentials');
                 reset('ui');
             } else if (err.status === 409) {
-                setErrMsg('User Already Exists');
+                setErrMsg('User / Email Already Exists');
                 reset('ui');
             } else {
                 setErrMsg('Signup Failed');
@@ -77,8 +80,8 @@ const Signup = () => {
         setPasswordValid(PWD_REGEX.test(password));
         setMatchPwdValid(password === matchPwd);
     }, [password, matchPwd]);
-    useEffect(() => { setErrMsg(''); }, [userName, password, matchPwd]);
-    useEffect(() => { currentUser && navigate('/lounge', { replace: true }); }, [currentUser, navigate]);
+    useEffect(() => { setErrMsg(''); }, [userName, email, password]);
+    useEffect(() => { currentUser && currentUser.verified && navigate('/chat', { replace: true }); }, [currentUser, navigate]);
     return (
         <>
             <div className="w-full flex flex-col items-center space-y-2">

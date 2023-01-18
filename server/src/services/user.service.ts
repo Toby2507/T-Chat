@@ -20,12 +20,16 @@ export const findUserByRefeshToken = (refreshToken: string) => {
     return UserModel.findOne({ refreshToken });
 };
 
-export const setProfilePicture = (id: string, profilePicture: string) => {
-    return UserModel.findByIdAndUpdate(id, { profilePicture }, { new: true });
+export const setProfilePicture = (id: string, profilePicture: string | null) => {
+    return UserModel.updateOne({ _id: id }, { profilePicture });
 };
 
 export const getAllUsers = (currentUserId: string) => {
-    return UserModel.find({ _id: { $ne: currentUserId } }).sort('userName');
+    return UserModel.find({ _id: { $ne: currentUserId }, verified: true }).sort('userName');
+};
+
+export const updateUserName = (userID: string, userName: string) => {
+    return UserModel.updateOne({ _id: userID }, { userName });
 };
 
 export const updateUsersGroupList = (userIds: string[], groupId: string) => {
@@ -38,4 +42,12 @@ export const removeGroupFromGroupList = (userId: string, groupId: string) => {
 
 export const getUserGroups = (userId: string) => {
     return UserModel.findById(userId, { groups: 1, _id: 0 });
+};
+
+export const deleteAccount = (userId: string) => {
+    return UserModel.findByIdAndDelete(userId);
+};
+
+export const deleteAccountTrail = (userId: string) => {
+    return UserModel.updateMany({}, { $pull: { archivedChats: userId, blockedUsers: userId, mutedUsers: userId } });
 };

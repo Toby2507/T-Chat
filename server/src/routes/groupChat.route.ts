@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addNewUsersToGroupHandler, createGroupChatHandler, deleteGroupChatHandler, editGroupInfoHandler, groupAdminHandler, leaveGroupChatHandler, removeGroupMemberHandler, setGroupProfilePictureHandler } from "../controllers/groupChat.controller";
+import { addNewUsersToGroupHandler, createGroupChatHandler, deleteGroupChatHandler, editGroupInfoHandler, groupAdminHandler, leaveGroupChatHandler, removeGroupMemberHandler, removeGroupProfilePictureHandler, setGroupProfilePictureHandler } from "../controllers/groupChat.controller";
 import requireUser from "../middlewares/requireUser";
 import validateSchema from "../middlewares/validateSchema";
 import { addNewUsersToGroupSchema, createGroupChatSchema, deleteGroupChatSchema, editGroupInfoSchema, removeGroupMemberSchema } from "../schemas/groupChat.schemas";
@@ -16,5 +16,6 @@ router.patch('/leave/:groupId', leaveGroupChatHandler);
 router.patch('/remove', validateSchema(removeGroupMemberSchema), removeGroupMemberHandler);
 router.delete('/delete', validateSchema(deleteGroupChatSchema), deleteGroupChatHandler);
 router.patch('/setprofilepicture/:groupId', parser.single('image'), setGroupProfilePictureHandler);
+router.patch('/removeprofilepicture/:groupId', removeGroupProfilePictureHandler);
 
 export default router;

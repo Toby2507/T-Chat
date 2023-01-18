@@ -17,7 +17,7 @@ const SingleLoungeUi = ({ user }: uiInterface) => {
   const selectMsgById = messageSelectors(user._id, user.isGroup).selectById;
   const lastMsg = useAppSelector(state => selectMsgById(state, (lastMsgId as EntityId))) as messageInterface;
   const sender = useAppSelector(state => selectUserById(state, (lastMsg?.sender as EntityId))) as userInterface;
-  const showMsg = `${lastMsg?.fromSelf ? 'You:' : `${sender?.userName}:`} ${lastMsg?.message}`;
+  const showMsg = `${lastMsg?.fromSelf ? 'You:' : `${sender?.userName || "Deleted User"}:`} ${lastMsg?.message}`;
 
   return (
     <article className="relative flex items-center gap-3 pl-2 cursor-pointer">

@@ -1,11 +1,11 @@
-import { useState } from 'react'
-import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
-import { FaCheck, FaInfoCircle, FaTimes } from 'react-icons/fa'
-import { RiLockPasswordLine } from 'react-icons/ri'
+import { useEffect, useState } from 'react';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import { FaCheck, FaInfoCircle, FaTimes } from 'react-icons/fa';
+import { RiLockPasswordLine } from 'react-icons/ri';
 
-const offscreen = 'absolute -left-[9999px]'
-const instructions = 'relative flex items-start gap-2 bg-mainGray rounded-xl p-2 pl-7'
-const instructionsText = 'tracking-tight leading-tight text-base text-white'
+const offscreen = 'absolute -left-[9999px]';
+const instructions = 'relative flex items-start gap-2 bg-mainGray rounded-xl p-2 pl-7';
+const instructionsText = 'tracking-tight leading-tight text-base text-white';
 
 interface SignupInfoInterface {
   password: string,
@@ -14,7 +14,7 @@ interface SignupInfoInterface {
   setMatchPwd: React.Dispatch<React.SetStateAction<string>>,
   passwordValid: boolean,
   matchPwdValid: boolean,
-  userRef: React.RefObject<HTMLInputElement>
+  userRef: React.RefObject<HTMLInputElement>;
 }
 
 const SignupPwd = ({ password, matchPwd, setPassword, setMatchPwd, passwordValid, matchPwdValid, userRef }: SignupInfoInterface) => {
@@ -23,6 +23,7 @@ const SignupPwd = ({ password, matchPwd, setPassword, setMatchPwd, passwordValid
   const [ispwdVisible, setIspwdVisible] = useState<boolean>(false);
   const [isMatchpwdVisible, setIsMatchpwdVisible] = useState<boolean>(false);
 
+  useEffect(() => { userRef.current?.focus(); }, [userRef]);
   return (
     <div className='w-full flex flex-col space-y-4'>
       <div className="w-full flex flex-col space-y-2 items-start">
@@ -90,7 +91,7 @@ const SignupPwd = ({ password, matchPwd, setPassword, setMatchPwd, passwordValid
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignupPwd
+export default SignupPwd;

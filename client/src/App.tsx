@@ -13,6 +13,7 @@ import Signup from './features/auth/Signup';
 import VerifyUser from './features/auth/VerifyUser';
 import CreateGroupChat from './features/chats/CreateGroupChat';
 import Lounge from './features/chats/Lounge';
+import UserSettings from './features/settings/UserSettings';
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
               <Route index element={<Lounge />} />
               <Route path='group' element={<CreateGroupChat />} />
               <Route path='group/:userId' element={<CreateGroupChat />} />
+              <Route path='settings' element={<UserSettings />} />
             </Route>
           </Route>
         </Route>

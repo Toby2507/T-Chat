@@ -2,10 +2,11 @@ import { Request, Response } from "express";
 import { omit } from "lodash";
 import { nanoid } from "nanoid";
 import { privateFields } from "../models/user.model";
-import { forgotPasswordInput, resendPasswordResetEmailInput, resetPasswordInput, verifyUserInput } from "../schemas/user.schema";
-import { findUserByEmail, findUserById, getAllUsers, getUserGroups, setProfilePicture } from "../services/user.service";
+import { forgotPasswordInput, resendPasswordResetEmailInput, resetPasswordInput, updateUserInfoInput, verifyUserInput } from "../schemas/user.schema";
+import { getGroupAdmins, getGroupChats, removeAccountFromGroups } from "../services/groupChat.service";
+import { deleteAccount, deleteAccountTrail, findUserByEmail, findUserById, getAllUsers, getUserGroups, setProfilePicture, updateUserName } from "../services/user.service";
 import sendEmail from "../utils/mailer";
-import { getGroupChats } from "../services/groupChat.service";
+import { Socket } from "socket.io";
 
 export const getAllUsersHandler = async (req: Request, res: Response) => {
     const { _id: from } = res.locals.user;
@@ -26,7 +27,7 @@ export const verifyUserHandler = async (req: Request<verifyUserInput>, res: Resp
     if (user.verificationCode === +verificationCode) {
         user.verified = true;
         await user.save();
-        return res.status(200).json({ user: omit(user.toJSON(), privateFields) });
+        return res.sendStatus(204);
     }
     return res.status(400).json({ message: 'Could not verify user' });
 };
@@ -88,7 +89,36 @@ export const setProfilePictureHandler = async (req: Request, res: Response) => {
     const { _id } = res.locals.user;
     const profilePicture = req.file?.path;
     if (!profilePicture) return res.status(400).json({ message: 'Could not set profile picture' });
-    const user = await setProfilePicture(_id, profilePicture);
-    if (!user) return res.status(400).json({ message: 'Could not set profile picture' });
-    return res.status(200).json({ user: omit(user.toJSON(), privateFields) });
+    const isUpdated = await setProfilePicture(_id, profilePicture);
+    if (isUpdated.modifiedCount === 0) return res.status(400).json({ message: 'Could not set profile picture' });
+    return res.status(200).json({ profilePicture });
+};
+
+export const removeProfilepictureHandler = async (req: Request, res: Response) => {
+    const { _id } = res.locals.user;
+    const isUpdated = await setProfilePicture(_id, null);
+    if (isUpdated.modifiedCount === 0) return res.status(400).json({ message: 'Could not remove profile picture' });
+    return res.sendStatus(204);
+};
+
+export const updateUserInfoHandler = async (req: Request<{}, {}, updateUserInfoInput>, res: Response) => {
+    try {
+        const { _id } = res.locals.user;
+        const { userName } = req.body;
+        const isUpdated = await updateUserName(_id, userName);
+        if (isUpdated.modifiedCount === 0) return res.status(400).json({ message: 'Could not update user info' });
+        return res.sendStatus(204);
+    } catch (err: any) {
+        if (err.code === 11000) return res.status(409).json({ message: 'User already exists' });
+    }
+};
+
+export const deleteAccountHandler = async (req: Request, res: Response) => {
+    const { _id } = res.locals.user;
+    const user = await deleteAccount(_id);
+    await deleteAccountTrail(_id);
+    const groups = user?.toJSON().groups;
+    await removeAccountFromGroups(groups as string[], _id);
+    const updatedAdmins = await getGroupAdmins(groups as string[]);
+    return res.status(200).json({ updatedAdmins });
 };

@@ -13,7 +13,7 @@ const LogoutButton = ({ buttonStyle, loading }: logoutInterface) => {
   const [logout, { isLoading }] = useLogoutMutation();
   const handleLogout = async () => {
     try {
-      await logout({}).unwrap();
+      await logout().unwrap();
       navigate('/login', { replace: true });
     } catch (err) { console.log(err); }
   };

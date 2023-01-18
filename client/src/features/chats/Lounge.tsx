@@ -13,9 +13,11 @@ import placeholderImage from '../../images/unknownUser.png';
 import { groupInterface, userInterface } from '../../utilities/interfaces';
 import { selectUser, toggleChatBox } from '../api/globalSlice';
 import { selectUserEntities, useGetUsersQuery } from '../auth/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Lounge = () => {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const { isLoading, isSuccess, isError, error } = useGetUsersQuery();
     const currentUser = useAppSelector(selectUser);
     const users = useAppSelector(selectUserEntities);
@@ -34,6 +36,7 @@ const Lounge = () => {
         const sortedUsers: (userInterface | groupInterface)[] = Object.values(users).map(user => user as userInterface | groupInterface).sort((a, b) => (b?.lastUpdated as number) - (a?.lastUpdated as number));
         setIds(sortedUsers);
     }, [users]);
+    useEffect(() => { !currentUser?.verified && navigate('/verify', { replace: true }); }, [currentUser?.verified, navigate]);
     useEffect(() => { isError && console.log(error); }, [error, isError]);
     useEffect(() => { currentUser?.archivedChats.length === 0 && setShowArchived(false); }, [currentUser?.archivedChats]);
     return (

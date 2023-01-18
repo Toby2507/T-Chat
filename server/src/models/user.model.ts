@@ -1,4 +1,4 @@
-import { getModelForClass, pre, prop } from "@typegoose/typegoose";
+import { getModelForClass, post, pre, prop } from "@typegoose/typegoose";
 import { index } from "@typegoose/typegoose/lib";
 import { Severity } from "@typegoose/typegoose/lib/internal/constants";
 import { modelOptions } from "@typegoose/typegoose/lib/modelOptions";
@@ -14,7 +14,10 @@ export const privateFields = ["password", "__v", "verificationCode", "passwordRe
     this.password = await bcrypt.hash(this.password, 10);
     return;
 })
-@index({ email: 1 })
+@index(
+    { email: 1 },
+    { expireAfterSeconds: 3600, partialFilterExpression: { verified: false } }
+)
 @modelOptions({
     schemaOptions: { timestamps: true },
     options: { allowMixed: Severity.ALLOW }
@@ -32,7 +35,7 @@ export class User {
     @prop({ default: () => verifyCode() })
     verificationCode: number;
 
-    @prop({ default: false })
+    @prop({ default: false, index: true })
     verified: boolean;
 
     @prop()

@@ -13,7 +13,7 @@ const onscreen = 'w-full bg-red-200 text-red-500 text-center rounded-md font-bol
 const VerifyUser = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/lounge';
+  const from = location.state?.from?.pathname || '/chat/settings';
   const currentUser = useAppSelector(selectUser);
   const [verifyUser, { isLoading }] = useVerifyUserMutation({});
   const errRef = useRef<HTMLParagraphElement>(null);

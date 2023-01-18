@@ -9,7 +9,7 @@ import Submenu from '../../components/Submenu';
 import placeholderImg2 from '../../images/unknownGroup.png';
 import placeholderImg from '../../images/unknownUser.png';
 import { groupInterface, userInterface } from '../../utilities/interfaces';
-import { selectChat, toggleChatBox, toggleProfile } from '../api/globalSlice';
+import { selectChat, selectOnlineUsers, toggleChatBox, toggleProfile } from '../api/globalSlice';
 import { selectUserById } from '../auth/authSlice';
 import { useClearChatMutation, useSetChatInfoMutation } from '../settings/chatSettingSlice';
 import SingleGroupChatMessage from './SingleGroupChatMessage';
@@ -25,6 +25,7 @@ const ChatContainer = () => {
   const [leaveGroup] = useLeaveGroupChatMutation();
   const currentChat = useAppSelector(selectChat);
   const chat = useAppSelector(state => selectUserById(state, currentChat.id as EntityId));
+  const onlineUsers = useAppSelector(selectOnlineUsers);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messages = useMemo(() => chat?.messages ?? [], [chat]);
   const messageIds = messages.map(msg => msg.id);
@@ -71,8 +72,11 @@ const ChatContainer = () => {
             <img src={chat?.profilePicture ? chat.profilePicture : chat?.isGroup ? placeholderImg2 : placeholderImg} alt={chat?.userName} className="w-full h-full object-cover rounded-full" />
           </figure>
           <div className="flex-1 flex flex-col items-start justify-center" onClick={() => dispatch(toggleProfile(true))}>
-            <h1 className="text-white text-base capitalize font-medium">{chat?.userName}</h1>
-            <span className="text-secondaryGray text-xs">Active</span>
+            <h1 className="flex items-center gap-3 text-white text-base capitalize font-medium">
+              {chat?.userName}
+              {!chat?.isGroup && <span className={`${onlineUsers.includes(chat?._id as string) ? "bg-green-500" : "bg-red-500"} w-2 h-2 rounded-full`}></span>}
+            </h1>
+            <span className="text-secondaryGray text-xs">click here to for chat info</span>
           </div>
           <button onClick={() => setShowOptions(!showOptions)} className="hidden text-white text-3xl lg:block"><BiDotsVerticalRounded /></button>
           <Submenu setLoading={setLoading} type="chat" isOpen={showOptions} options={chat?.isGroup ? groupOptions : userOptions} />

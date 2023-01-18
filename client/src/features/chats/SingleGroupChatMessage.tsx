@@ -2,9 +2,10 @@ import { EntityId } from '@reduxjs/toolkit';
 import React from 'react';
 import { useAppSelector } from '../../app/hooks';
 import placeholderImg from '../../images/unknownUser.png';
-import { userInterface } from '../../utilities/interfaces';
+import { mainUserInterface, userInterface } from '../../utilities/interfaces';
 import { selectUserById } from '../auth/authSlice';
 import { messageSelectors } from './chatSlice';
+import { selectUser } from '../api/globalSlice';
 
 interface singleMessageInterface {
   prevId: { id: string, isInformational: boolean; };
@@ -16,6 +17,7 @@ interface singleMessageInterface {
 
 const SingleGroupChatMessage = ({ currId, prevId, nextId, chatId, isGroup }: singleMessageInterface) => {
   const selectMessageById = messageSelectors(chatId, isGroup).selectById;
+  const myInfo = useAppSelector(selectUser) as mainUserInterface;
   const prevMsg = useAppSelector(state => selectMessageById(state, prevId?.id));
   const currMsg = useAppSelector(state => selectMessageById(state, currId?.id));
   const nextMsg = useAppSelector(state => selectMessageById(state, nextId?.id));
@@ -31,7 +33,7 @@ const SingleGroupChatMessage = ({ currId, prevId, nextId, chatId, isGroup }: sin
       {currId?.isInformational ? (
         <p
           className="w-max self-center rounded-lg bg-mainGray px-4 py-1 text-secondaryGray text-xs text-center font-medium cursor-pointer capitalize"
-        >{`${actionBy?.userName || "You"} ${action} ${action === "Left" ? "" : actionTo?.userName || "you"}`}</p>
+        >{`${myInfo?._id === by ? "You" : actionBy?.userName || "Deleted User"} ${action} ${action === "Left" ? "" : myInfo?._id === to ? "You" : actionTo?.userName || "Deleted User"}`}</p>
       ) : (
         <>
           {currMsg?.date !== prevMsg?.date && (
@@ -44,7 +46,7 @@ const SingleGroupChatMessage = ({ currId, prevId, nextId, chatId, isGroup }: sin
               {!currMsg?.fromSelf && currMsg?.sender !== (!nextMsg?.isInformational ? nextMsg?.sender : null) && (<img src={sender?.profilePicture || placeholderImg} alt="" className="w-full h-full object-cover rounded-full" />)}
             </figure>
             <div className={currMsg?.fromSelf ? sent : recieved}>
-              {currMsg?.sender !== (!prevMsg?.isInformational ? prevMsg?.sender : null) && <p className={`text-${sender?.groupColor} font-medium text-xs`}>{sender?.userName}</p>}
+              {currMsg?.sender !== (!prevMsg?.isInformational ? prevMsg?.sender : null) && <p className={`text-${sender?.groupColor || "accentPurple"} font-medium text-xs`}>{currMsg?.fromSelf ? "" : sender?.userName || "Deleted User"}</p>}
               <p className="w-full text-white text-sm">{currMsg?.message}</p>
               <p className="text-white/50 text-xs tracking-wider">{currMsg?.time}</p>
             </div>

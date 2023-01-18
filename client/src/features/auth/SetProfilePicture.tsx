@@ -1,19 +1,16 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ImSpinner9 } from 'react-icons/im';
 import { MdOutlineNavigateNext } from 'react-icons/md';
 import { RiFileEditFill } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../../app/hooks';
-import Loader from '../../components/Loader';
 import User from '../../images/unknownUser.png';
 import { useSetPPMutation } from './authSlice';
-import { setCredentials } from '../api/globalSlice';
 
 const offscreen = 'absolute -left-[9999px]';
 const onscreen = 'w-full bg-red-200 text-red-500 text-center rounded-md font-bold px-4 py-1';
 
 const SetProfilePicture = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const [setPP, { isLoading }] = useSetPPMutation();
   const imgRef = useRef<HTMLImageElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -27,8 +24,7 @@ const SetProfilePicture = () => {
       const file = selectedImg as File;
       const formData = new FormData();
       formData.append('image', file);
-      const res = await setPP(formData).unwrap();
-      dispatch(setCredentials({ ...res }));
+      await setPP(formData).unwrap();
       navigate('/chat');
     } catch (err: any) {
       if (!err.status) {
@@ -71,14 +67,13 @@ const SetProfilePicture = () => {
               type="submit"
               className='bg-mainBlue py-3 w-48 grid place-items-center rounded-3xl text-sm text-white capitalize md:text-lg'
               aria-label='sign up'
-            >next</button>
+            >{isLoading ? <ImSpinner9 className='animate-spin' /> : "next"}</button>
             <button className="flex items-center space-x-4 text-secondaryGray" onClick={() => navigate('/chat')}>
               Skip
               <MdOutlineNavigateNext className='text-xl' />
             </button>
           </div>
         </form>
-        {isLoading && <Loader />}
       </div>
     </>
   );

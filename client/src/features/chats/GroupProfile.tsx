@@ -95,7 +95,7 @@ const GroupProfile = () => {
       <article className="flex flex-col items-center gap-8 px-4 py-16 overflow-x-clip overflow-y-scroll">
         {/* USER INFO */}
         {changePP ? (
-          <SetGroupProfilePicture groupId={userInfo?._id as EntityId} setChangePP={setChangePP} currentImg={userInfo?.profilePicture} />
+          <SetGroupProfilePicture userId={userInfo?._id as EntityId} isGroup={true} setChangePP={setChangePP} currentImg={userInfo?.profilePicture} />
         ) : (
           <div className="flex flex-col items-center gap-4">
             <p ref={errRef} className={errMsg ? onscreen : offscreen} aria-live='assertive'>{errMsg}</p>

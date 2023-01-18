@@ -1,8 +1,8 @@
 import { EntityState, createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { RootState, store } from '../../app/store';
-import { groupInterface, stateInterface, userInterface } from '../../utilities/interfaces';
+import { groupInterface, mainUserInterface, optionalInterface, stateInterface, userInterface } from '../../utilities/interfaces';
 import { apiSlice } from '../api/apiSlice';
-import { addedToGroupFromSocket, clearCredentials, deletedGroupFromSocket, editedGroupInfoFromSocket, recieveMsgFromSocket, removedFromGroupFromSocket, setCredentials, startApp, toggleChatBox, toggleProfile } from '../api/globalSlice';
+import { accountDeletedFromSocket, addedToGroupFromSocket, clearCredentials, createNewUserThroughSocket, deleteAccountThroughSocket, deletedGroupFromSocket, editUserInfoThroughSocket, editedGroupInfoFromSocket, editedUserInfoFromSocket, newUserCreatedFromSocket, recieveMsgFromSocket, removedFromGroupFromSocket, setCredentials, startApp, toggleChatBox, toggleProfile, updateOnlineUsersFromSocket, updateUserDetails } from '../api/globalSlice';
 
 export const usersAdapter = createEntityAdapter<userInterface | groupInterface>({
   selectId: user => user._id
@@ -41,11 +41,15 @@ export const authSlice = apiSlice.injectEndpoints({
       async onCacheEntryAdded(arg, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+          dispatch(newUserCreatedFromSocket());
           dispatch(recieveMsgFromSocket());
           dispatch(addedToGroupFromSocket());
           dispatch(removedFromGroupFromSocket());
           dispatch(deletedGroupFromSocket());
           dispatch(editedGroupInfoFromSocket());
+          dispatch(updateOnlineUsersFromSocket());
+          dispatch(accountDeletedFromSocket());
+          dispatch(editedUserInfoFromSocket());
           await cacheEntryRemoved;
         } catch (err) { console.log(err); }
       },
@@ -53,37 +57,86 @@ export const authSlice = apiSlice.injectEndpoints({
     }),
     signup: builder.mutation<stateInterface, { email: string, userName: string, password: string; }>({
       query: credentials => ({
-        url: '/auth/signup',
+        url: 'auth/signup',
         method: 'POST',
         body: { ...credentials }
-      })
-    }),
-    login: builder.mutation<stateInterface, { userName: string, password: string; }>({
-      query: credentials => ({
-        url: '/auth/login',
-        method: 'POST',
-        body: { ...credentials }
-      }),
-      async onQueryStarted(arg, { dispatch }) {
-        dispatch(toggleProfile(false));
-        dispatch(toggleChatBox({ show: false, chat: { id: null, isGroup: false } }));
-      }
-    }),
-    setPP: builder.mutation({
-      query: formData => ({
-        url: '/user/setprofilepicture',
-        method: 'POST',
-        body: formData
-      })
-    }),
-    verifyUser: builder.mutation({
-      query: verifyCode => ({
-        url: `user/verify/${verifyCode}`,
-        method: 'GET'
       }),
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         const result = await queryFulfilled;
         dispatch(setCredentials({ ...result.data }));
+      }
+    }),
+    login: builder.mutation<stateInterface, { userName: string, password: string; }>({
+      query: credentials => ({
+        url: 'auth/login',
+        method: 'POST',
+        body: { ...credentials }
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        const result = await queryFulfilled;
+        dispatch(setCredentials({ ...result.data }));
+        dispatch(toggleProfile(false));
+        dispatch(toggleChatBox({ show: false, chat: { id: null, isGroup: false } }));
+      }
+    }),
+    updateUserName: builder.mutation<unknown, string>({
+      query: userName => ({
+        url: 'user/updateuserinfo',
+        method: 'PATCH',
+        body: { userName }
+      }),
+      async onQueryStarted(arg, { getState, dispatch, queryFulfilled }) {
+        await queryFulfilled;
+        const user = (getState() as RootState).user.user as mainUserInterface;
+        dispatch(updateUserDetails({ userName: arg }));
+        const socketData = { _id: user._id, userName: arg };
+        dispatch(editUserInfoThroughSocket(socketData));
+      }
+    }),
+    setPP: builder.mutation<{ profilePicture: string; }, FormData>({
+      query: formData => ({
+        url: 'user/setprofilepicture',
+        method: 'PATCH',
+        body: formData
+      }),
+      async onQueryStarted(arg, { getState, dispatch, queryFulfilled }) {
+        const result = await queryFulfilled;
+        dispatch(updateUserDetails({ profilePicture: result.data.profilePicture }));
+        const user = (getState() as RootState).user.user as mainUserInterface;
+        const socketData = { _id: user._id, profilePicture: result.data.profilePicture };
+        dispatch(editUserInfoThroughSocket(socketData));
+      }
+    }),
+    removePP: builder.mutation<unknown, void>({
+      query: () => ({
+        url: 'user/removeprofilepicture',
+        method: 'PATCH'
+      }),
+      async onQueryStarted(arg, { getState, dispatch, queryFulfilled }) {
+        await queryFulfilled;
+        dispatch(updateUserDetails({ profilePicture: null }));
+        const user = (getState() as RootState).user.user as mainUserInterface;
+        const socketData = { _id: user._id, profilePicture: null };
+        dispatch(editUserInfoThroughSocket(socketData));
+      }
+    }),
+    verifyUser: builder.mutation<unknown, string>({
+      query: verifyCode => ({
+        url: `user/verify/${verifyCode}`,
+        method: 'GET'
+      }),
+      async onQueryStarted(arg, { getState, dispatch, queryFulfilled }) {
+        await queryFulfilled;
+        dispatch(updateUserDetails({ verified: true }));
+        const userInfo = (getState() as RootState).user.user as mainUserInterface;
+        const user: optionalInterface = { ...userInfo };
+        delete user.blockedUsers;
+        delete user.archivedChats;
+        delete user.mutedUsers;
+        delete user.verified;
+        const random = Math.ceil(Math.random() * 10);
+        const finalUser: userInterface = { ...user, messages: [], unread: [], lastUpdated: 0, isGroup: false, isArchived: false, isBlocked: false, isMuted: false, blockedMe: false, groupColor: `group${random}` };
+        dispatch(createNewUserThroughSocket(finalUser));
       }
     }),
     resendVerifyEmail: builder.mutation({
@@ -114,17 +167,30 @@ export const authSlice = apiSlice.injectEndpoints({
       })
     }),
     refresh: builder.query({
-      query: () => '/auth/refreshaccess',
+      query: () => 'auth/refreshaccess',
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         const result = await queryFulfilled;
         dispatch(setCredentials({ ...result.data }));
       }
     }),
-    logout: builder.mutation({
-      query: () => '/auth/logout',
+    logout: builder.mutation<unknown, void>({
+      query: () => 'auth/logout',
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         await queryFulfilled;
         dispatch(clearCredentials());
+        dispatch(apiSlice.util.resetApiState());
+      }
+    }),
+    deleteAccount: builder.mutation<{ updatedAdmins: Partial<groupInterface>[]; }, void>({
+      query: () => ({
+        url: 'user/deleteaccount',
+        method: 'DELETE'
+      }),
+      async onQueryStarted(arg, { getState, dispatch, queryFulfilled }) {
+        await queryFulfilled;
+        const myId = (getState() as RootState).user.user?._id;
+        dispatch(deleteAccountThroughSocket(myId as string));
+        dispatch(authSlice.endpoints.logout.initiate());
         dispatch(apiSlice.util.resetApiState());
       }
     })
@@ -143,6 +209,7 @@ export const {
   useSignupMutation,
   useLoginMutation,
   useSetPPMutation,
+  useRemovePPMutation,
   useLogoutMutation,
   useRefreshQuery,
   useVerifyUserMutation,
@@ -150,5 +217,7 @@ export const {
   useForgotPasswordMutation,
   useResendFPEmailMutation,
   useResetPasswordMutation,
-  useGetUsersQuery
+  useGetUsersQuery,
+  useDeleteAccountMutation,
+  useUpdateUserNameMutation
 } = authSlice;

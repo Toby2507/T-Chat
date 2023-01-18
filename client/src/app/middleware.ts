@@ -1,10 +1,10 @@
 import { EntityId, TypedStartListening, createListenerMiddleware } from "@reduxjs/toolkit";
 import { Socket, io } from "socket.io-client";
 import { apiSlice } from "../features/api/apiSlice";
-import { addNewGroup, addToGroupThroughSocket, addedToGroupFromSocket, deleteGroupThroughSocket, deletedGroupFromSocket, editGroupInfoThroughSocket, editedGroupInfoFromSocket, recieveMsgFromSocket, removeFromGroupThroughSocket, removeGroup, removedFromGroupFromSocket, sendMsgThroughSocket, startApp, toggleChatBox, toggleProfile } from "../features/api/globalSlice";
+import { accountDeletedFromSocket, addNewGroup, addToGroupThroughSocket, addedToGroupFromSocket, blockUserThroughSocket, createNewUserThroughSocket, deleteAccountThroughSocket, deleteGroupThroughSocket, deleteUserAccount, deletedGroupFromSocket, editGroupInfoThroughSocket, editUserInfoThroughSocket, editedGroupInfoFromSocket, editedUserInfoFromSocket, newUserCreatedFromSocket, recieveMsgFromSocket, removeFromGroupThroughSocket, removeGroup, removedFromGroupFromSocket, sendMsgThroughSocket, startApp, toggleChatBox, toggleProfile, updateOnlineUsers, updateOnlineUsersFromSocket, userBlockedMeFromSocket } from "../features/api/globalSlice";
 import { authSlice, usersAdapter } from "../features/auth/authSlice";
 import { chatSlice, messagesAdapter } from "../features/chats/chatSlice";
-import { ClientToServerEvents, ServerToClientEvents, groupInterface } from "../utilities/interfaces";
+import { ClientToServerEvents, ServerToClientEvents, groupInterface, userInterface } from "../utilities/interfaces";
 import { AppDispatch, RootState } from "./store";
 
 
@@ -26,21 +26,21 @@ startAppListening({
 
 startAppListening({
   actionCreator: sendMsgThroughSocket,
-  effect: async (action) => {
+  effect: action => {
     socket.emit('send_msg', action.payload);
   }
 });
 
 startAppListening({
   actionCreator: addToGroupThroughSocket,
-  effect: async (action) => {
+  effect: action => {
     socket.emit('add_to_group', action.payload);
   }
 });
 
 startAppListening({
   actionCreator: removeFromGroupThroughSocket,
-  effect: async (action) => {
+  effect: action => {
     socket.emit('remove_from_group', action.payload);
   }
 });
@@ -48,15 +48,63 @@ startAppListening({
 
 startAppListening({
   actionCreator: deleteGroupThroughSocket,
-  effect: async (action) => {
+  effect: action => {
     socket.emit('delete_group', action.payload);
   }
 });
 
 startAppListening({
   actionCreator: editGroupInfoThroughSocket,
-  effect: async (action) => {
+  effect: action => {
     socket.emit('edit_group', action.payload);
+  }
+});
+
+startAppListening({
+  actionCreator: blockUserThroughSocket,
+  effect: action => {
+    socket.emit('block_user', action.payload);
+  }
+});
+
+startAppListening({
+  actionCreator: deleteAccountThroughSocket,
+  effect: action => {
+    socket.emit('delete_account', action.payload);
+  }
+});
+
+startAppListening({
+  actionCreator: createNewUserThroughSocket,
+  effect: action => {
+    socket.emit('create_new_user', action.payload);
+  }
+});
+
+startAppListening({
+  actionCreator: editUserInfoThroughSocket,
+  effect: action => {
+    socket.emit('edit_user', action.payload);
+  }
+});
+
+startAppListening({
+  actionCreator: newUserCreatedFromSocket,
+  effect: (action, listenerApi) => {
+    socket.on('new_user_created', data => {
+      usersAdapter.addOne(usersAdapter.getInitialState(), data);
+      listenerApi.dispatch(apiSlice.util.invalidateTags([{ type: 'Users' as const, id: 'LIST' }]));
+      setTimeout(() => { listenerApi.dispatch(startApp({ refetch: true })); }, 1000);
+    });
+  }
+});
+
+startAppListening({
+  actionCreator: updateOnlineUsersFromSocket,
+  effect: async (action, listenerApi) => {
+    socket.on('online_users', onlineUsers => {
+      listenerApi.dispatch(updateOnlineUsers(onlineUsers));
+    });
   }
 });
 
@@ -69,6 +117,7 @@ startAppListening({
       listenerApi.dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
         const newUser = data.from && draft.entities[data.from];
         if (newUser) {
+          if (newUser.messages.map(msg => msg.id).includes(data.id)) return;
           newUser.messages = [...newUser.messages, { id: data.id, isInformational: data.isInformational }];
           newUser.lastUpdated = data.datetime;
           if (!data.isInformational) {
@@ -134,12 +183,54 @@ startAppListening({
         if (group) {
           arg.userName && (group.userName = arg.userName);
           arg.description !== undefined && (group.description = arg.description);
-          arg.profilePicture && (group.profilePicture = arg.profilePicture);
+          arg.profilePicture !== undefined && (group.profilePicture = arg.profilePicture);
           arg.members && (group.members = arg.members);
           arg.admins && (group.admins = arg.admins);
           usersAdapter.updateOne(usersAdapter.getInitialState(), { id: arg._id as string, changes: group });
         }
       }));
+    });
+  }
+});
+
+startAppListening({
+  actionCreator: editedUserInfoFromSocket,
+  effect: async (action, listenerApi) => {
+    socket.on('editted_user', arg => {
+      listenerApi.dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
+        const user = draft.entities[arg._id as string] as userInterface;
+        if (user) {
+          arg.userName && (user.userName = arg.userName);
+          arg.profilePicture !== undefined && (user.profilePicture = arg.profilePicture);
+          usersAdapter.updateOne(usersAdapter.getInitialState(), { id: arg._id as string, changes: user });
+        }
+      }));
+    });
+  }
+});
+
+startAppListening({
+  actionCreator: userBlockedMeFromSocket,
+  effect: async (action, listenerApi) => {
+    socket.on('blocked_me', arg => {
+      listenerApi.dispatch(authSlice.util.updateQueryData('getUsers', undefined, draft => {
+        const user = draft.entities[arg.userId] as userInterface;
+        if (user) {
+          user.blockedMe = arg.block;
+          usersAdapter.updateOne(usersAdapter.getInitialState(), { id: arg.userId, changes: user });
+        }
+      }));
+    });
+  }
+});
+
+startAppListening({
+  actionCreator: accountDeletedFromSocket,
+  effect: async (action, listenerApi) => {
+    socket.on('deleted_account', async userId => {
+      listenerApi.dispatch(deleteUserAccount(userId));
+      listenerApi.dispatch(apiSlice.util.invalidateTags([{ type: 'Users' as const, id: 'LIST' }]));
+      setTimeout(() => { listenerApi.dispatch(startApp({ refetch: true })); }, 1000);
     });
   }
 });

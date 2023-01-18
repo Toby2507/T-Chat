@@ -14,7 +14,8 @@ const CreateGroupChat = () => {
   useGetUsersQuery();
   const { userId } = useParams();
   const navigate = useNavigate();
-  const myId = useAppSelector(selectUser)?._id;
+  const currentUser = useAppSelector(selectUser);
+  const myId = currentUser?._id;
   const [createGroupChat, { isLoading }] = useCreateGroupChatMutation();
   const errRef = useRef<HTMLParagraphElement>(null);
   const [stage, setStage] = useState<GroupInterface>("initial");
@@ -51,7 +52,7 @@ const CreateGroupChat = () => {
   };
   const participantProps = { selected, chooseUser, next };
   const infoProps = { name, description, isLoading, errMsg, errRef, back, chooseUser, setName, setDescription, create, selected };
-
+  useEffect(() => { !currentUser?.verified && navigate('/verify', { replace: true }); }, [currentUser?.verified, navigate]);
   useEffect(() => { selected.length < 1 && setStage("initial"); }, [selected]);
   useEffect(() => { setErrMsg(""); }, [name, description, selected]);
   return (

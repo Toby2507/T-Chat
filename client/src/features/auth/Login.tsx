@@ -2,16 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineUser } from 'react-icons/ai';
 import { RiLockPasswordLine } from 'react-icons/ri';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { useAppSelector } from '../../app/hooks';
 import Loader from '../../components/Loader';
-import { selectUser, setCredentials } from '../api/globalSlice';
+import { selectUser } from '../api/globalSlice';
 import { useLoginMutation } from './authSlice';
 
 const offscreen = 'absolute -left-[9999px]';
 const onscreen = 'w-full bg-red-200 text-red-500 text-center rounded-md font-bold px-4 py-1 mb-2';
 
 const Login = () => {
-    const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     const currentUser = useAppSelector(selectUser);
@@ -30,8 +29,7 @@ const Login = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const res = await login({ userName, password }).unwrap();
-            dispatch(setCredentials({ ...res }));
+            await login({ userName, password }).unwrap();
             setUsername(''); setPassword('');
             navigate(from, { replace: true });
         } catch (err: any) {

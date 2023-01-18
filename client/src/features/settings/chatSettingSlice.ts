@@ -1,6 +1,6 @@
 import { userInterface } from "../../utilities/interfaces";
 import { apiSlice } from "../api/apiSlice";
-import { setUserChatOptions, toggleProfile } from "../api/globalSlice";
+import { blockUserThroughSocket, setUserChatOptions, toggleProfile } from "../api/globalSlice";
 import { authSlice } from "../auth/authSlice";
 import { messagesAdapter } from "../chats/chatSlice";
 
@@ -29,6 +29,7 @@ export const settingsSlice = apiSlice.injectEndpoints({
                 break;
               case "blockedUsers":
                 (user as userInterface).isBlocked = arg.set;
+                dispatch(blockUserThroughSocket({ userId: arg.userId, block: arg.set }));
                 break;
               case "mutedUsers":
                 user.isMuted = arg.set;
