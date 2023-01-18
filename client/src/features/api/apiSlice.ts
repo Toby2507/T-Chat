@@ -5,7 +5,7 @@ import { stateInterface } from '../../utilities/interfaces';
 import { clearCredentials, setCredentials } from '../api/globalSlice';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:5000/api/v1',
+  baseUrl: process.env.REACT_APP_SERVER_URL,
   credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
     headers.set('Accept', 'application/json');
