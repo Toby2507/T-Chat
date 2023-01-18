@@ -27,7 +27,6 @@ const ResetPassword = () => {
       await resetPassword({ id, passwordResetCode, password }).unwrap();
       navigate('/login');
     } catch (err: any) {
-      console.log(err);
       if (!err.status) {
         setErrMsg('No Server Response');
       } else if (err.data) {

@@ -1,6 +1,6 @@
-import { getModelForClass, index, modelOptions, prop, Ref, Severity } from "@typegoose/typegoose";
-import { User } from "./user.model";
+import { Ref, Severity, getModelForClass, index, modelOptions, prop } from "@typegoose/typegoose";
 import { ObjectId } from "mongoose";
+import { User } from "./user.model";
 
 @modelOptions({
   schemaOptions: { timestamps: true },

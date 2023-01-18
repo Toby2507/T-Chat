@@ -74,8 +74,8 @@ export const getGroupAdmins = (groupIds: string[]) => {
   return GroupChatModel.find({ _id: { $in: groupIds } }, { admins: 1 });
 };
 
-export const deleteGroupChat = (groupId: string) => {
-  return GroupChatModel.deleteOne({ _id: groupId });
+export const deleteGroupChat = (groupId: string, by: string) => {
+  return GroupChatModel.deleteOne({ _id: groupId, admins: by });
 };
 
 export const editGroupInfo = (groupId: string, userName: string, description: string, by: string) => {

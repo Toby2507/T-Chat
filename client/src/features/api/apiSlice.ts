@@ -8,6 +8,11 @@ const baseQuery = fetchBaseQuery({
   baseUrl: 'http://localhost:5000/api/v1',
   credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
+    headers.set('Accept', 'application/json');
+    headers.set('Cache-Control', 'no-cache');
+    headers.set('Pragma', 'no-cache');
+    headers.set('Expires', '0');
+
     const accessToken = (getState() as RootState).user.accessToken;
     if (accessToken) {
       headers.set('authorization', `Bearer ${accessToken}`);

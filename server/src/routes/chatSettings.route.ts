@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { setChatInfoHandler } from "../controllers/chatSettings.controller";
+import requireUser from "../middlewares/requireUser";
 import validateSchema from "../middlewares/validateSchema";
 import { setChatInfoSchema } from "../schemas/chatSettings.schema";
-import requireUser from "../middlewares/requireUser";
 
 const router = Router();
 

@@ -39,19 +39,17 @@ export const authSlice = apiSlice.injectEndpoints({
         dispatch(startApp({ refetch: false }));
       },
       async onCacheEntryAdded(arg, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
-          dispatch(newUserCreatedFromSocket());
-          dispatch(recieveMsgFromSocket());
-          dispatch(addedToGroupFromSocket());
-          dispatch(removedFromGroupFromSocket());
-          dispatch(deletedGroupFromSocket());
-          dispatch(editedGroupInfoFromSocket());
-          dispatch(updateOnlineUsersFromSocket());
-          dispatch(accountDeletedFromSocket());
-          dispatch(editedUserInfoFromSocket());
-          await cacheEntryRemoved;
-        } catch (err) { console.log(err); }
+        await cacheDataLoaded;
+        dispatch(newUserCreatedFromSocket());
+        dispatch(recieveMsgFromSocket());
+        dispatch(addedToGroupFromSocket());
+        dispatch(removedFromGroupFromSocket());
+        dispatch(deletedGroupFromSocket());
+        dispatch(editedGroupInfoFromSocket());
+        dispatch(updateOnlineUsersFromSocket());
+        dispatch(accountDeletedFromSocket());
+        dispatch(editedUserInfoFromSocket());
+        await cacheEntryRemoved;
       },
       providesTags: (result, error, arg) => result ? [{ type: 'Users' as const, id: 'LIST' }, ...result.ids.map(id => ({ type: 'Users' as const, id }))] : [{ type: 'Users' as const, id: 'LIST' }]
     }),

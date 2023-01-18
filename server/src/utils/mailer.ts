@@ -1,5 +1,5 @@
 import Email from 'email-templates';
-import nodemailer, { SendMailOptions } from 'nodemailer';
+import nodemailer from 'nodemailer';
 import log from './logger';
 
 interface emailPayloadInterface {

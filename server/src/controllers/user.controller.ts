@@ -6,7 +6,6 @@ import { forgotPasswordInput, resendPasswordResetEmailInput, resetPasswordInput,
 import { getGroupAdmins, getGroupChats, removeAccountFromGroups } from "../services/groupChat.service";
 import { deleteAccount, deleteAccountTrail, findUserByEmail, findUserById, getAllUsers, getUserGroups, setProfilePicture, updateUserName } from "../services/user.service";
 import sendEmail from "../utils/mailer";
-import { Socket } from "socket.io";
 
 export const getAllUsersHandler = async (req: Request, res: Response) => {
     const { _id: from } = res.locals.user;

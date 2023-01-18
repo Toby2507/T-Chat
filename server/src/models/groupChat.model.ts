@@ -1,4 +1,4 @@
-import { Severity, getModelForClass, index, modelOptions, prop } from "@typegoose/typegoose";
+import { Severity, getModelForClass, modelOptions, prop } from "@typegoose/typegoose";
 
 @modelOptions({
   schemaOptions: { timestamps: true },

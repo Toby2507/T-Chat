@@ -55,13 +55,11 @@ const SetGroupProfilePicture = ({ userId, isGroup, currentImg, setChangePP }: se
   };
   const handleRemove = async () => {
     if (currentImg) {
-      try {
-        if (isGroup) {
-          await removePP(userId).unwrap();
-        } else {
-          await removePP2().unwrap();
-        }
-      } catch (err) { console.log(err); }
+      if (isGroup) {
+        await removePP(userId).unwrap();
+      } else {
+        await removePP2().unwrap();
+      }
     }
   };
   const previewImg = (e: ChangeEvent<HTMLInputElement>) => {

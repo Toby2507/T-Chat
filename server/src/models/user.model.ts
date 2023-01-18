@@ -1,10 +1,9 @@
-import { getModelForClass, post, pre, prop } from "@typegoose/typegoose";
+import { getModelForClass, pre, prop } from "@typegoose/typegoose";
 import { index } from "@typegoose/typegoose/lib";
 import { Severity } from "@typegoose/typegoose/lib/internal/constants";
 import { modelOptions } from "@typegoose/typegoose/lib/modelOptions";
 import { DocumentType } from "@typegoose/typegoose/lib/types";
 import bcrypt from "bcrypt";
-import log from "../utils/logger";
 import verifyCode from "../utils/manualVerifyCode";
 
 export const privateFields = ["password", "__v", "verificationCode", "passwordResetCode", "createdAt", "updatedAt"];
@@ -14,8 +13,9 @@ export const privateFields = ["password", "__v", "verificationCode", "passwordRe
     this.password = await bcrypt.hash(this.password, 10);
     return;
 })
+@index({ email: 1 })
 @index(
-    { email: 1 },
+    { createdAt: -1 },
     { expireAfterSeconds: 3600, partialFilterExpression: { verified: false } }
 )
 @modelOptions({
@@ -35,7 +35,7 @@ export class User {
     @prop({ default: () => verifyCode() })
     verificationCode: number;
 
-    @prop({ default: false, index: true })
+    @prop({ default: false })
     verified: boolean;
 
     @prop()
@@ -56,11 +56,13 @@ export class User {
     @prop({ default: [] })
     groups: string[];
 
+    @prop({ default: Date.now })
+    createdAt: Date;
+
     async validatePassword(this: DocumentType<User>, password: string) {
         try {
             return await bcrypt.compare(password, this.password);
         } catch (err) {
-            log.error(err, 'Could not validate password');
             return false;
         }
     }

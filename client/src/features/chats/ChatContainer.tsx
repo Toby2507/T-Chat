@@ -35,9 +35,9 @@ const ChatContainer = () => {
   useReadMessagesQuery({ messages: unreadMessages, chat: currentChat.id as EntityId }, { skip: !unreadMessages || unreadMessages.length === 0 });
 
   const handleSendMessage = async (msg: string) => {
-    try {
+    if (msg.trim()) {
       chat?.isGroup ? await sendMessage({ message: msg, to: (chat?._id as string), members: (chat as groupInterface).members as string[] }) : await sendMessage({ message: msg, to: (chat?._id as string) });
-    } catch (err) { console.log(err); }
+    }
   };
   const blockUser = () => { setChatInfo({ control: "blockedUsers", set: !(chat as userInterface)?.isBlocked as boolean, userId: currentChat.id as string }); setShowOptions(false); };
   const muteChat = () => { setChatInfo({ control: "mutedUsers", set: !chat?.isMuted as boolean, userId: currentChat.id as string }); setShowOptions(false); };

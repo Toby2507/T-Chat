@@ -85,7 +85,7 @@ export const removeGroupMemberHandler = async (req: Request<{}, {}, removeGroupM
 export const deleteGroupChatHandler = async (req: Request<{}, {}, deleteGroupChatInput>, res: Response) => {
   const { groupId, members } = req.body;
   const { _id: userId } = res.locals.user;
-  const isDeleted = await deleteGroupChat(groupId);
+  const isDeleted = await deleteGroupChat(groupId, userId);
   if (isDeleted.deletedCount === 0) return res.status(403).json({ message: 'You are not an admin of this group' });
   members.forEach(async (member: string) => {
     await removeGroupFromGroupList(member, groupId);

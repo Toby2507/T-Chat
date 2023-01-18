@@ -18,7 +18,7 @@ import { useNavigate } from 'react-router-dom';
 const Lounge = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { isLoading, isSuccess, isError, error } = useGetUsersQuery();
+    const { isLoading, isSuccess } = useGetUsersQuery();
     const currentUser = useAppSelector(selectUser);
     const users = useAppSelector(selectUserEntities);
     const [ids, setIds] = useState<(userInterface | groupInterface)[]>([]);
@@ -37,7 +37,6 @@ const Lounge = () => {
         setIds(sortedUsers);
     }, [users]);
     useEffect(() => { !currentUser?.verified && navigate('/verify', { replace: true }); }, [currentUser?.verified, navigate]);
-    useEffect(() => { isError && console.log(error); }, [error, isError]);
     useEffect(() => { currentUser?.archivedChats.length === 0 && setShowArchived(false); }, [currentUser?.archivedChats]);
     return (
         <>

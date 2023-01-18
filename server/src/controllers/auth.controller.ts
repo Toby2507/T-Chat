@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { omit } from "lodash";
+import { client } from "../app";
 import { privateFields } from "../models/user.model";
 import { createUserInput, loginUserInput } from "../schemas/auth.schema";
 import { findSessionById, signAccessToken, signRefreshToken } from "../services/auth.service";
 import { createUser, findUserById, findUserByUsername } from "../services/user.service";
 import { verifyJWT } from "../utils/jwt";
 import sendEmail from "../utils/mailer";
-import { client } from "../app";
 
 export const createUserHandler = async (req: Request<{}, {}, createUserInput>, res: Response) => {
     const body = req.body;
@@ -62,9 +62,9 @@ export const logoutUserHandler = async (req: Request, res: Response) => {
     const session = await findSessionById(decoded.sessionId);
     if (session?.valid) {
         session.valid = false;
-        await client.del(`user-${decoded.user}`);
         await session.save();
     }
+    await client.del(`user-${decoded.user}`);
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
     return res.sendStatus(204);
 };

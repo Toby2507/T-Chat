@@ -1,4 +1,3 @@
-import { type } from "os";
 import { TypeOf, boolean, object, string } from "zod";
 
 export const setChatInfoSchema = object({
