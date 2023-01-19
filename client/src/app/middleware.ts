@@ -19,7 +19,7 @@ startAppListening({
   },
   effect: (action, listenerApi) => {
     const currentUser = listenerApi.getState().user.user?._id;
-    socket = io('http://localhost:5000');
+    socket = io(process.env.REACT_APP_SERVER_URL as string);
     socket.emit('add_user', (currentUser as string));
   }
 });
