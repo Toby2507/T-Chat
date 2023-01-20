@@ -56,10 +56,10 @@ const ChatLayout = () => {
           variants={mobileVariants}
           animate={showChatbox ? 'Chatroom' : 'Lounge'}
           transition={{ duration: 0.3 }}
-          className="flex items-center h-full w-full"
+          className={`flex items-center h-full w-[${width}px]`}
         >
           <div className="shrink-0 grow-1 w-full h-full"><Outlet /></div>
-          <div className={`shrink-0 grow-1 w-full max-w-[${width}px] h-full`}><ChatRoom /></div>
+          <div className="shrink-0 grow-1 w-full h-full"><ChatRoom /></div>
         </motion.div>
       </section>
       <section className="hidden w-full h-full overflow-hidden md:block lg:hidden">
@@ -68,10 +68,10 @@ const ChatLayout = () => {
           variants={tabletVariants}
           animate={showChatbox ? 'Chatroom' : 'Lounge'}
           transition={{ duration: 0.3 }}
-          className="flex items-center h-full w-full"
+          className={`flex items-center h-full w-[${width}px]`}
         >
           <div className="shrink-0 grow-1 w-[60%] h-full"><Outlet /></div>
-          <div className={`shrink-0 grow-1 w-full max-w-[${width}px] h-full`}><ChatRoom /></div>
+          <div className="shrink-0 grow-1 w-full h-full"><ChatRoom /></div>
         </motion.div>
       </section>
       <section className="hidden lg:grid grid-cols-[30%_70%] place-items-center h-full w-full overflow-hidden">
