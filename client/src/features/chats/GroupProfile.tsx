@@ -15,6 +15,7 @@ import { useSetChatInfoMutation } from '../settings/chatSettingSlice';
 import AddNewGroupMember from './AddNewGroupMember';
 import SetGroupProfilePicture from './SetGroupProfilePicture';
 import { useDeleteGroupChatMutation, useEditGroupInfoMutation, useGroupAdminHandlerMutation, useLeaveGroupChatMutation, useRemoveGroupMemberMutation } from './groupChatSlice';
+import BooleanPopUp from '../../components/BooleanPopUp';
 
 const offscreen = 'absolute -left-[9999px]';
 const onscreen = 'w-full bg-red-200 text-red-500 text-center rounded-md font-bold px-4 py-1 mb-2';
@@ -24,7 +25,7 @@ const GroupProfile = () => {
   const [setChatInfo] = useSetChatInfoMutation();
   const [removeGroupMember] = useRemoveGroupMemberMutation();
   const [leaveGroup] = useLeaveGroupChatMutation();
-  const [deleteGroupChat] = useDeleteGroupChatMutation();
+  const [deleteGroupChat, { isLoading: deleteLoading }] = useDeleteGroupChatMutation();
   const [editGroup, { isLoading }] = useEditGroupInfoMutation();
   const [adminHandler] = useGroupAdminHandlerMutation();
   const user = useAppSelector(selectChat);
@@ -41,6 +42,7 @@ const GroupProfile = () => {
   // TOGGLE SETTINGS FEATURES VARIABLES
   const [changePP, setChangePP] = useState<boolean>(false);
   const [isAddingNew, setIsAddingNew] = useState<boolean>(false);
+  const [showDeletePopUp, setShowDeletePopUp] = useState<boolean>(false);
   const isAdmin = userInfo?.admins.includes(myInfo?._id as EntityId);
   // GROUP SETTINGS FUNCTIONS
   const editGroupInfo = async () => {
@@ -191,11 +193,13 @@ const GroupProfile = () => {
             <p className=" text-red-500 text-base capitalize">exit group</p>
           </article>
           {isAdmin && (
-            <article className="w-full flex items-center cursor-pointer py-3 border-b border-accentGray last:border-none" onClick={deleteGroup}>
+            <article className="w-full flex items-center cursor-pointer py-3 border-b border-accentGray last:border-none" onClick={() => setShowDeletePopUp(true)}>
               <p className=" text-red-500 text-base capitalize">delete group</p>
             </article>
           )}
         </section>
+        {/* DELETE POPUP */}
+        {showDeletePopUp && (<BooleanPopUp loading={deleteLoading} setShowPopUp={setShowDeletePopUp} deleteAction={deleteGroup} />)}
       </article>
     </section>
   );

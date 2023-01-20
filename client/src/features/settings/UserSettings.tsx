@@ -13,6 +13,7 @@ import { selectUser, toggleChatBox } from '../api/globalSlice';
 import LogoutButton from '../auth/LogoutButton';
 import { useDeleteAccountMutation, useGetUsersQuery, useUpdateUserNameMutation } from '../auth/authSlice';
 import SetGroupProfilePicture from '../chats/SetGroupProfilePicture';
+import BooleanPopUp from '../../components/BooleanPopUp';
 
 const offscreen = 'absolute -left-[9999px]';
 const onscreen = 'w-full bg-red-200 text-red-500 text-center rounded-md font-bold px-4 py-1 mb-2';
@@ -140,22 +141,13 @@ const UserSettings = () => {
               <LogoutButton buttonStyle='flex-1 py-3 justify-start text-left text-red-500 text-sm capitalize' />
             </div>
           </article>
-          {showDeletePopUp && (
-            <>
-              <div className="absolute top-0 left-0 right-0 bottom-0 w-80 h-max m-auto p-4 rounded-lg bg-mainGray z-20 grid place-items-center gap-2">
-                <h3 className="text-white/70 text-sm text-center font-medium tracking-widest">Are you sure you want to delete your account?</h3>
-                <div className="w-full flex items-center gap-4">
-                  <button className="w-full py-2 rounded-lg bg-accentGray text-center font-medium text-white/70 text-lg" onClick={() => setShowDeletePopUp(false)}>No</button>
-                  <button className="w-full grid place-items-center py-2 rounded-lg bg-red-500 text-center font-medium text-white/70 text-lg" onClick={deleteMyAccount}>{deleteLoading ? <ImSpinner9 className='animate-spin' /> : "Yes"}</button>
-                </div>
-              </div>
-              <div className="absolute top-0 left-0 w-full h-full z-10 bg-black/70"></div>
-            </>
-          )}
+          {showDeletePopUp && (<BooleanPopUp loading={deleteLoading} deleteAction={deleteMyAccount} setShowPopUp={setShowDeletePopUp} />)}
         </section>
       </article>
     </section>
   );
 };
+
+
 
 export default UserSettings;
