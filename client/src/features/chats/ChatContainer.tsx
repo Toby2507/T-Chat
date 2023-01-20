@@ -65,8 +65,8 @@ const ChatContainer = () => {
   useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
   return (
     <>
-      <section className="w-full h-full border-l border-mainGray grid grid-rows-[auto_1fr_auto]">
-        <div className="relative px-4 py-1 flex gap-2 items-center bg-mainGray">
+      <section className={`w-full h-screen border-l border-mainGray grid grid-rows-[auto_1fr_auto]`}>
+        <div className="relative px-4 py-2 flex gap-2 items-center bg-mainGray">
           <button className="lg:hidden" onClick={() => dispatch(toggleChatBox({ show: false, chat: { id: null, isGroup: false } }))}><IoIosArrowBack className='text-lg text-white' /></button>
           <figure className="w-14 h-14 rounded-full">
             <img src={chat?.profilePicture ? chat.profilePicture : chat?.isGroup ? placeholderImg2 : placeholderImg} alt={chat?.userName} className="w-full h-full object-cover rounded-full" />
@@ -81,7 +81,7 @@ const ChatContainer = () => {
           <button onClick={() => setShowOptions(!showOptions)} className="hidden text-white text-3xl lg:block"><BiDotsVerticalRounded /></button>
           <Submenu setLoading={setLoading} type="chat" isOpen={showOptions} options={chat?.isGroup ? groupOptions : userOptions} />
         </div>
-        <div className="w-full h-full p-4 flex flex-col justify-start space-y-3 overflow-y-scroll">
+        <div className="w-full h-full p-4 flex flex-col justify-start gap-3 overflow-y-scroll">
           {messages.map((msg, i) => (
             <div ref={scrollRef} key={msg.id} className="w-full flex flex-col justify-start space-y-3">
               {currentChat.isGroup ? (
