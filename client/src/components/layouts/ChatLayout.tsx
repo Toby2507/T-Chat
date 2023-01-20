@@ -17,7 +17,7 @@ const ChatLayout = () => {
       x: 0,
     },
     Chatroom: {
-      x: window.innerWidth * -1,
+      x: (window.innerWidth + 8) * -1,
     }
   };
   const tabletVariants = {
@@ -25,7 +25,7 @@ const ChatLayout = () => {
       x: 0,
     },
     Chatroom: {
-      x: window.innerWidth * -0.6,
+      x: (window.innerWidth + 8) * -0.6,
     }
   };
   const variant = {
