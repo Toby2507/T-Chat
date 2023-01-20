@@ -5,13 +5,11 @@ import { selectChat, showChatBox, showProfile } from '../../features/api/globalS
 import ChatProfile from '../../features/chats/ChatProfile';
 import ChatRoom from '../../features/chats/ChatRoom';
 import GroupProfile from '../../features/chats/GroupProfile';
-import useWindowSize from '../../utilities/useWindowSizeHook';
 
 const ChatLayout = () => {
   const showChatbox = useAppSelector(showChatBox);
   const showProfileBox = useAppSelector(showProfile);
   const isGroup = useAppSelector(selectChat).isGroup;
-  const { width } = useWindowSize();
   const mobileVariants = {
     Lounge: {
       x: 0,
