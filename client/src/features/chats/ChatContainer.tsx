@@ -65,7 +65,7 @@ const ChatContainer = () => {
   useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
   return (
     <>
-      <section className="w-full max-w-full h-full border-l border-mainGray grid grid-rows-[auto_1fr_auto]">
+      <section className="w-full min-w-10/12 h-full border-l border-mainGray grid grid-rows-[auto_1fr_auto]">
         <div className="relative px-4 py-1 flex gap-2 items-center bg-mainGray">
           <button className="lg:hidden" onClick={() => dispatch(toggleChatBox({ show: false, chat: { id: null, isGroup: false } }))}><IoIosArrowBack className='text-lg text-white' /></button>
           <figure className="w-14 h-14 rounded-full">

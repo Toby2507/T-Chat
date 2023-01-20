@@ -40,5 +40,5 @@ module.exports = {
     },
   },
   plugins: [],
-  safelist: [{ pattern: /text-.*/ }, { pattern: /h-.*/ }]
+  safelist: [{ pattern: /text-.*/ }, { pattern: /h-.*/ }, { pattern: /max-.*/ }]
 };
