@@ -5,11 +5,13 @@ import { selectChat, showChatBox, showProfile } from '../../features/api/globalS
 import ChatProfile from '../../features/chats/ChatProfile';
 import ChatRoom from '../../features/chats/ChatRoom';
 import GroupProfile from '../../features/chats/GroupProfile';
+import useWindowSize from '../../utilities/useWindowSizeHook';
 
 const ChatLayout = () => {
   const showChatbox = useAppSelector(showChatBox);
   const showProfileBox = useAppSelector(showProfile);
   const isGroup = useAppSelector(selectChat).isGroup;
+  const { width } = useWindowSize();
   const mobileVariants = {
     Lounge: {
       x: 0,
@@ -57,7 +59,7 @@ const ChatLayout = () => {
           className="flex items-center h-full w-full"
         >
           <div className="shrink-0 grow-1 w-full h-full"><Outlet /></div>
-          <div className="shrink-0 w-full h-full"><ChatRoom /></div>
+          <div className="shrink-0 w-full h-full" style={{ "maxWidth": `${width}px` }}><ChatRoom /></div>
         </motion.div>
       </section>
       <section className="hidden w-full h-full overflow-hidden md:block lg:hidden">
@@ -69,7 +71,7 @@ const ChatLayout = () => {
           className="flex items-center h-full w-full"
         >
           <div className="shrink-0 grow-1 w-[60%] h-full"><Outlet /></div>
-          <div className="shrink-0 w-full h-full"><ChatRoom /></div>
+          <div className="shrink-0 w-full h-full" style={{ "maxWidth": `${width}px` }}><ChatRoom /></div>
         </motion.div>
       </section>
       <section className="hidden lg:grid grid-cols-[30%_70%] place-items-center h-full w-full overflow-hidden">
