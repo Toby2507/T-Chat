@@ -19,7 +19,7 @@ export const createUserHandler = async (req: Request<{}, {}, createUserInput>, r
         });
         const accessToken = signAccessToken(user);
         const refreshToken = await signRefreshToken(user._id);
-        res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'none', secure: true, maxAge: 24 * 60 * 60 * 1000 });
+        res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'lax', secure: true, maxAge: 24 * 60 * 60 * 1000, domain: "tobychat.netlify.app" });
         res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });
     } catch (err: any) {
         if (err.code === 11000) return res.status(409).json({ message: 'User already exists' });
@@ -35,7 +35,7 @@ export const loginUserHandler = async (req: Request<{}, {}, loginUserInput>, res
     if (!isUser) return res.status(401).json({ message });
     const accessToken = signAccessToken(user);
     const refreshToken = await signRefreshToken(user._id);
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'none', secure: true, maxAge: 24 * 60 * 60 * 1000 });
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'lax', secure: true, maxAge: 24 * 60 * 60 * 1000, domain: "tobychat.netlify.app" });
     res.json({ user: omit(user.toJSON(), privateFields), accessToken });
 };
 
@@ -65,6 +65,6 @@ export const logoutUserHandler = async (req: Request, res: Response) => {
         await session.save();
     }
     await client.del(`user-${decoded.user}`);
-    res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'lax', secure: true, domain: "tobychat.netlify.app" });
     return res.sendStatus(204);
 };
