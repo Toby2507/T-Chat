@@ -150,7 +150,6 @@ mongoose.connection.once('open', () => {
     });
     io.on('connection', socket => {
         global.chatSocket = socket;
-        log.info('socket connection made');
         socket.on('create_new_user', async data => {
             socket.broadcast.emit('new_user_created', data);
         });

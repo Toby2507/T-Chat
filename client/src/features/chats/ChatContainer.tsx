@@ -65,8 +65,8 @@ const ChatContainer = () => {
   useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
   return (
     <>
-      <section className="w-full h-screen border-l border-mainGray grid grid-rows-[auto_1fr_auto]">
-        <div className="relative px-4 py-2 flex gap-2 items-center bg-mainGray">
+      <section className="w-full h-full border-l border-mainGray grid grid-rows-[auto_1fr_auto]">
+        <div className="relative px-4 py-1 flex gap-2 items-center bg-mainGray">
           <button className="lg:hidden" onClick={() => dispatch(toggleChatBox({ show: false, chat: { id: null, isGroup: false } }))}><IoIosArrowBack className='text-lg text-white' /></button>
           <figure className="w-14 h-14 rounded-full">
             <img src={chat?.profilePicture ? chat.profilePicture : chat?.isGroup ? placeholderImg2 : placeholderImg} alt={chat?.userName} className="w-full h-full object-cover rounded-full" />
@@ -95,7 +95,7 @@ const ChatContainer = () => {
         </div>
         <>
           {!currentChat.isGroup && (chat as userInterface)?.blockedMe ? (
-            <h2 className="bg-mainGray px-4 py-3 text-secondaryGray text-xs text-center">You have been blocked by this user.</h2>
+            <h2 className="bg-mainGray px-4 py-2 text-secondaryGray text-xs text-center">You have been blocked by this user.</h2>
           ) : <AddChat {...addChatProps} />}
         </>
       </section>

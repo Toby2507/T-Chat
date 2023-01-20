@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Onboard = () => {
     return (
-        <section className="h-screen grid place-items-center grid-rows-2 lg:grid-rows-none lg:grid-cols-2">
+        <section className="h-full grid place-items-center grid-rows-2 lg:grid-rows-none lg:grid-cols-2">
             <figure className="w-full h-full overflow-hidden">
                 <img src={imgMobile} alt="Logo" className='w-full h-full object-cover lg:hidden' />
                 <img src={imgDesk} alt="Logo" className='hidden w-full h-full object-cover md:block' />

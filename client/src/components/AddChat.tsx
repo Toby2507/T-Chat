@@ -47,7 +47,7 @@ const AddChat = ({ handleSendMessage, isLoading, isBlocked, userId }: addChatInt
     close: () => setShowBlockNot(false)
   };
   return (
-    <div className="relative px-4 py-3 flex gap-3 items-center bg-mainGray">
+    <div className="relative px-4 py-2 flex gap-3 items-center bg-mainGray">
       <div className='relative emoji'>
         <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="w-10 h-10 rounded-full bg-accentGray grid place-items-center text-white text-2xl m-0"><MdEmojiEmotions /></button>
         {showEmojiPicker && <Picker {...emojiProps} />}

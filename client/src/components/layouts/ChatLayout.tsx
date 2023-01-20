@@ -47,8 +47,8 @@ const ChatLayout = () => {
     }
   };
   return (
-    <div className="relative overflow-clip">
-      <section className="relative w-full h-screen overflow-hidden md:hidden">
+    <div className="relative w-full h-full overflow-clip">
+      <section className="relative w-full h-full overflow-hidden md:hidden">
         <motion.div
           initial={false}
           variants={mobileVariants}
@@ -60,7 +60,7 @@ const ChatLayout = () => {
           <div className="shrink-0 grow-1 w-full h-full"><ChatRoom /></div>
         </motion.div>
       </section>
-      <section className="hidden relative w-full h-screen overflow-hidden md:block lg:hidden">
+      <section className="hidden relative w-full h-full overflow-hidden md:block lg:hidden">
         <motion.div
           initial={false}
           variants={tabletVariants}
@@ -72,7 +72,7 @@ const ChatLayout = () => {
           <div className="shrink-0 grow-1 w-full h-full"><ChatRoom /></div>
         </motion.div>
       </section>
-      <section className="relative hidden lg:grid grid-cols-[30%_70%] place-items-center h-screen w-full overflow-hidden">
+      <section className="relative hidden lg:grid grid-cols-[30%_70%] place-items-center h-full w-full overflow-hidden">
         <Outlet />
         <ChatRoom />
       </section>

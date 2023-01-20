@@ -59,7 +59,7 @@ const UserSettings = () => {
 
   useEffect(() => { setErrMsg(""); }, [name, isEditing]);
   return (
-    <section className="relative w-full h-screen px-2 py-6 flex flex-col items-center space-y-4 transition-all duration-300">
+    <section className="relative w-full h-full px-2 py-6 flex flex-col items-center space-y-4 transition-all duration-300">
       <article className="w-full flex items-center justify-between px-2 gap-4 mb-4">
         <Link to="/chat"><button className="flex items-center text-secondaryGray text-sm tracking-wide font-medium"><FaAngleLeft className='text-2xl' /> Back</button></Link>
         <h1 className="flex-1 text-white text-lg text-center capitalize font-medium">profile</h1>

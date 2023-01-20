@@ -84,7 +84,7 @@ const GroupProfile = () => {
 
   useEffect(() => { setErrMsg(""); }, [name, description, isEditing]);
   return (
-    <section className="relative w-full h-screen grid grid-rows-[auto_1fr] border-l border-mainGray">
+    <section className="relative w-full h-full grid grid-rows-[auto_1fr] border-l border-mainGray">
       <article className="relative w-full p-5 flex gap-6 items-center bg-mainGray">
         <button onClick={() => dispatch(toggleProfile(false))}><IoClose className='text-3xl text-secondaryGray' /></button>
         <h1 className="flex-1 text-white text-lg font-medium tracking-widest">Group Info</h1>

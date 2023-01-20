@@ -56,7 +56,7 @@ const CreateGroupChat = () => {
   useEffect(() => { selected.length < 1 && setStage("initial"); }, [selected]);
   useEffect(() => { setErrMsg(""); }, [name, description, selected]);
   return (
-    <section className="w-full h-screen px-4 py-6 flex flex-col items-center transition-all duration-300">
+    <section className="w-full h-full px-4 py-6 flex flex-col items-center transition-all duration-300">
       {stage === "initial" ? (
         <SelectParticipants {...participantProps} />
       ) : (

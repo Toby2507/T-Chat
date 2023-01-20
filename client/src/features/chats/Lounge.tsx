@@ -40,7 +40,7 @@ const Lounge = () => {
     useEffect(() => { currentUser?.archivedChats.length === 0 && setShowArchived(false); }, [currentUser?.archivedChats]);
     return (
         <>
-            <section className="w-full h-screen px-2 py-6 flex flex-col items-center space-y-4 transition-all duration-300">
+            <section className="w-full h-full px-2 py-6 flex flex-col items-center space-y-4 transition-all duration-300">
                 <div className="relative w-full flex items-center justify-between px-2">
                     <figure className="w-12 h-12 rounded-full skeleton">
                         <img src={currentUser?.profilePicture ? currentUser.profilePicture : placeholderImage} alt={currentUser?.userName} className="w-full h-full object-cover rounded-full" />

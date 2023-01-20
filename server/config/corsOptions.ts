@@ -1,7 +1,8 @@
 import { CorsOptions } from "cors";
 
 export const allowedOrigins = [
-    "https://tobychat.netlify.app"
+    "https://tobychat.netlify.app",
+    "http://localhost:3000"
 ];
 
 export const corsOptions: CorsOptions = {

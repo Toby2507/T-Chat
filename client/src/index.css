@@ -20,6 +20,11 @@
   animation: pulse 1s linear infinite alternate;
 }
 
+.setDeviceHeight {
+  height: 100vh;
+  height: -webkit-fill-available;
+}
+
 @keyframes pulse {
   0% {
     background-color: rgba(33, 34, 36, 0.8);
