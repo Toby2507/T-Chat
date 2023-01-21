@@ -6,7 +6,7 @@ import ChatContainer from './ChatContainer';
 const ChatRoom = () => {
   const currentChat = useAppSelector(selectChat);
   return (
-    <div className="w-full h-full grid relative">
+    <div className="w-full h-full relative">
       {currentChat.id ? <ChatContainer /> : <ChatPlaceholder />}
     </div>
   );
