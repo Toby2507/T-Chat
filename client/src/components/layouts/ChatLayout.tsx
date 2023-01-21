@@ -59,7 +59,7 @@ const ChatLayout = () => {
           className="flex items-center h-full w-full"
         >
           <div className="shrink-0 h-full" style={{ "width": `${width}px` }}><Outlet /></div>
-          <div className="shrink-0 h-full" style={{ "width": `${width}px`, "maxWidth": `${width}px` }}><ChatRoom /></div>
+          <div className="shrink-0 h-full" style={{ "width": `${width - 16}px`, "maxWidth": `${width}px` }}><ChatRoom /></div>
         </motion.div>
       </section>
       <section className="hidden w-full h-full overflow-hidden md:block lg:hidden">
