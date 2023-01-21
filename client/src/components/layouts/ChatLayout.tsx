@@ -17,7 +17,7 @@ const ChatLayout = () => {
       x: 0,
     },
     Chatroom: {
-      x: (window.innerWidth + 8) * -1,
+      x: window.innerWidth * -1,
     }
   };
   const tabletVariants = {
@@ -25,7 +25,7 @@ const ChatLayout = () => {
       x: 0,
     },
     Chatroom: {
-      x: (window.innerWidth + 8) * -0.6,
+      x: window.innerWidth * -0.6,
     }
   };
   const variant = {
@@ -59,7 +59,7 @@ const ChatLayout = () => {
           className="flex items-center h-full w-full"
         >
           <div className="shrink-0 grow-1 w-full h-full"><Outlet /></div>
-          <div className="shrink-0 w-full h-full" style={{ "maxWidth": `${width}px` }}><ChatRoom /></div>
+          <div className="shrink-0 w-full h-full" style={{ "width": `${width}px` }}><ChatRoom /></div>
         </motion.div>
       </section>
       <section className="hidden w-full h-full overflow-hidden md:block lg:hidden">
@@ -71,7 +71,7 @@ const ChatLayout = () => {
           className="flex items-center h-full w-full"
         >
           <div className="shrink-0 grow-1 w-[60%] h-full"><Outlet /></div>
-          <div className="shrink-0 w-full h-full" style={{ "maxWidth": `${width}px` }}><ChatRoom /></div>
+          <div className="shrink-0 w-full h-full" style={{ "width": `${width}px` }}><ChatRoom /></div>
         </motion.div>
       </section>
       <section className="hidden lg:grid grid-cols-[30%_70%] place-items-center h-full w-full overflow-hidden">
