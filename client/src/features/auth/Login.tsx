@@ -55,7 +55,7 @@ const Login = () => {
         <>
             <div className="w-full flex flex-col items-center space-y-2">
                 <p ref={errRef} className={errMsg ? onscreen : offscreen} aria-live='assertive'>{errMsg}</p>
-                <h1 className='text-white text-xl text-center font-semibold capitalize mb-4'>log in</h1>
+                <h1 className='text-white text-xl text-center font-semibold capitalize mb-2'>log in</h1>
             </div>
             <div className="w-full flex flex-col items-center space-y-4">
                 <form onSubmit={handleSubmit} className='w-full flex flex-col space-y-4 items-center md:w-10/12 md:space-y-6'>
@@ -101,8 +101,8 @@ const Login = () => {
                     <button type="submit" className='bg-mainBlue py-3 w-48 grid place-items-center rounded-3xl text-sm text-white capitalize md:text-lg'>log in</button>
                 </form>
                 <p className="text-xs text-white pt-6">Need an account? <span className="text-accentPurple uppercase pl-1"><Link to='/signup'>sign up</Link></span></p>
-                {isLoading && <Loader />}
             </div>
+            {isLoading && <Loader />}
         </>
     );
 };

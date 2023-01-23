@@ -63,7 +63,7 @@ const SignupPwd = ({ password, matchPwd, setPassword, setMatchPwd, passwordValid
           </p>
         </div>
       </div>
-      <div className="w-full flex flex-col space-y-2 items-start pb-2">
+      <div className="w-full flex flex-col space-y-2 items-start">
         <label htmlFor="confirmPassword" className='flex items-center gap-2 text-sm text-white font-medium capitalize'>
           confirm password:
           <span className={`${matchPwdValid && matchPwd ? '' : 'hidden'} text-green-500`}><FaCheck /></span>

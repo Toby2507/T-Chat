@@ -58,7 +58,7 @@ const VerifyUser = () => {
     <>
       <p ref={errRef} className={errMsg ? onscreen : offscreen} aria-live='assertive'>{errMsg}</p>
       <h1 className='text-white text-2xl text-center font-semibold capitalize mb-2 justify-self-start'>Check your email</h1>
-      <div className="w-full flex flex-col items-center space-y-8">
+      <div className="w-full flex flex-col items-center space-y-4">
         <div className="flex flex-col items-center">
           <p className="text-secondaryGray text-sm text-center font-medium tracking-wider">We sent a verification email to</p>
           <h2 className="text-accentPurple text-lg text-center font-medium">{currentUser?.email}</h2>

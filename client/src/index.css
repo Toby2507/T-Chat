@@ -43,12 +43,12 @@
 }
 
 .EmojiPickerReact {
-  --epr-bg-color: #212224;
-  --epr-hover-bg-color: #383E3C;
-  --epr-category-label-bg-color: #212224;
-  --epr-highlight-color: transparent;
-  --epr-search-input-bg-color-active: #383E3C;
-  --epr-search-input-bg-color: #383E3C;
-  --epr-focus-bg-color: #383E3C;
-  --epr-category-icon-active-color: #828BD4;
+  --epr-bg-color: #212224 !important;
+  --epr-hover-bg-color: #383E3C !important;
+  --epr-category-label-bg-color: #212224 !important;
+  --epr-highlight-color: transparent !important;
+  --epr-search-input-bg-color-active: #383E3C !important;
+  --epr-search-input-bg-color: #383E3C !important;
+  --epr-focus-bg-color: #383E3C !important;
+  --epr-category-icon-active-color: #828BD4 !important;
 }

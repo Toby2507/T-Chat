@@ -89,7 +89,7 @@ const Signup = () => {
                 <h1 className='text-white text-xl text-center font-semibold capitalize mb-4'>sign up</h1>
             </div>
             <div className="w-full flex flex-col items-center space-y-4">
-                <form className='w-full flex flex-col space-y-8 items-center  md:w-10/12' onSubmit={handleSubmit}>
+                <form className='w-full flex flex-col space-y-8 items-center md:w-10/12' onSubmit={handleSubmit}>
                     {infoTaken ? <SignupPwd {...pwds} /> : <SignupInfo {...infos} />}
                     {infoTaken ? (
                         <button
@@ -107,9 +107,9 @@ const Signup = () => {
                         >next</button>
                     )}
                 </form>
-                <p className="text-xs text-white pt-6">Already have an account? <span className="text-accentPurple uppercase"><Link to='/login'>log in</Link></span></p>
-                {isLoading && <Loader />}
+                <p className="text-xs text-white pt-4">Already have an account? <span className="text-accentPurple uppercase"><Link to='/login'>log in</Link></span></p>
             </div>
+            {isLoading && <Loader />}
         </>
     );
 };
