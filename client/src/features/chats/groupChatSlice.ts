@@ -25,7 +25,7 @@ export const groupChatSlice = apiSlice.injectEndpoints({
         const newGroup = Object.values(entities)[0] as groupInterface;
         newGroup.members.forEach(member => {
           if (member !== myId) {
-            // SEND AN ALERT TO ALERT MEMBERS 
+            // SEND AN ALERT TO GROUP MEMBERS 
             const socketData = { ...newGroup, to: member as string, by: myId as string };
             dispatch(addToGroupThroughSocket(socketData));
             // SEND INFORMATIONAL MESSAGES TO GROUP

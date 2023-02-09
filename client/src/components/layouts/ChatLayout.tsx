@@ -60,7 +60,7 @@ const ChatLayout = () => {
           style={{ "width": `${width}px` }}
         >
           <div className="shrink-0 h-full w-full"><Outlet /></div>
-          <div className="shrink-0 h-full w-full grid place-items-center"><ChatRoom /></div>
+          <div className="shrink-0 h-full w-full"><ChatRoom /></div>
         </motion.div>
       </section>
       <section className="hidden w-full h-full overflow-hidden md:block lg:hidden">
@@ -73,7 +73,7 @@ const ChatLayout = () => {
           style={{ "width": `${width}px` }}
         >
           <div className="shrink-0 h-full w-[60%]"><Outlet /></div>
-          <div className="shrink-0 h-full w-full grid place-items-center"><ChatRoom /></div>
+          <div className="shrink-0 h-full w-full"><ChatRoom /></div>
         </motion.div>
       </section>
       <section className="hidden lg:grid grid-cols-[30%_70%] place-items-center h-full w-full overflow-hidden">
